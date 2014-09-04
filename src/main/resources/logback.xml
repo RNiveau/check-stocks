@@ -16,7 +16,6 @@
 
     <appender name="debugfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${catalina.base:-/tmp}/logs/check-stocks-debug.log</File>
-        <withJansi>true</withJansi>
         <encoder>
             <pattern>%date{yyyy/MM/dd HH:mm:ss.SSS,Europe/Paris} %${color:-highlight}(%-5level) [%thread] %logger{16} -
                 %message%n%throwable{8}

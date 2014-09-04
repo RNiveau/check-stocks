@@ -20,21 +20,36 @@ public class CalculUtilsTest {
         // Basic test from http://www.trading-school.eu/glossaire-bourse/fiche-Relative-Strength-Index-RSI--45
 
         List<Stock> stockList = new ArrayList<>();
-        stockList.add(createStock(LocalDate.of(2000, 1, 1), 12));
-        stockList.add(createStock(LocalDate.of(2000, 1, 2), 13));
-        stockList.add(createStock(LocalDate.of(2000, 1, 3), 12.5));
-        stockList.add(createStock(LocalDate.of(2000, 1, 4), 14));
-        stockList.add(createStock(LocalDate.of(2000, 1, 5), 13));
-        stockList.add(createStock(LocalDate.of(2000, 1, 6), 12));
-        stockList.add(createStock(LocalDate.of(2000, 1, 7), 11));
-
-        Assert.assertEquals(new BigDecimal("50.00"), CalculUtils.rsi(stockList, 5).setScale(2, RoundingMode.HALF_EVEN));
-
-        stockList.remove(0);
-        Assert.assertEquals(new BigDecimal("30.02"), CalculUtils.rsi(stockList, 5).setScale(2, RoundingMode.HALF_EVEN));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 1), 12));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 2), 13));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 3), 12.5));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 4), 14));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 5), 13));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 6), 12));
+//        stockList.add(createStock(LocalDate.of(2000, 1, 7), 11));
+//
+//        Assert.assertEquals(new BigDecimal("50.00"), CalculUtils.rsi(stockList, 5).setScale(2, RoundingMode.HALF_EVEN));
+//
+//        stockList.remove(0);
+//        Assert.assertEquals(new BigDecimal("30.02"), CalculUtils.rsi(stockList, 5).setScale(2, RoundingMode.HALF_EVEN));
 
         // exemple ACA 28/04/2014
         stockList.clear();
+        stockList.add(createStock(LocalDate.of(2014, 7, 18), 10.275));
+        stockList.add(createStock(LocalDate.of(2014, 7, 21), 10.085));
+        stockList.add(createStock(LocalDate.of(2014, 7, 22), 10.200));
+        stockList.add(createStock(LocalDate.of(2014, 7, 23), 10.130));
+        stockList.add(createStock(LocalDate.of(2014, 7, 24), 10.715));
+        stockList.add(createStock(LocalDate.of(2014, 7, 25), 10.680));
+        stockList.add(createStock(LocalDate.of(2014, 7, 28), 10.740));
+        stockList.add(createStock(LocalDate.of(2014, 7, 29), 10.685));
+        stockList.add(createStock(LocalDate.of(2014, 7, 30), 10.570));
+        stockList.add(createStock(LocalDate.of(2014, 7, 31), 10.120));
+        stockList.add(createStock(LocalDate.of(2014, 8, 1), 10.085));
+        stockList.add(createStock(LocalDate.of(2014, 8, 4), 10.285));
+        stockList.add(createStock(LocalDate.of(2014, 8, 5), 10.510));
+        stockList.add(createStock(LocalDate.of(2014, 8, 6), 10.580));
+        stockList.add(createStock(LocalDate.of(2014, 8, 7), 10.360));
         stockList.add(createStock(LocalDate.of(2014, 8, 8), 10.435));
         stockList.add(createStock(LocalDate.of(2014, 8, 11), 10.45));
         stockList.add(createStock(LocalDate.of(2014, 8, 12), 10.43));
