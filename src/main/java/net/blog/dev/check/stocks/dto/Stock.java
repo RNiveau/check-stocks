@@ -2,6 +2,7 @@ package net.blog.dev.check.stocks.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Created by romainn on 28/08/2014.
@@ -66,5 +67,9 @@ public class Stock {
 
     public void setVolume(BigDecimal volume) {
         this.volume = volume;
+    }
+
+    public String toString() {
+        return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))+" "+close.doubleValue();
     }
 }
