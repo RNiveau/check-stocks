@@ -37,7 +37,7 @@ public class CalculUtils {
      * @param period
      * @return
      */
-    public static BigDecimal rsi4(List<Stock> stocks, int period) {
+    public static BigDecimal rsi(List<Stock> stocks, int period) {
         stocks.sort(sort);
         // clone
         stocks = stocks.stream().collect(Collectors.toList());
@@ -46,8 +46,8 @@ public class CalculUtils {
 
         Stock last = stocks.remove(0);
         for (Stock stock : stocks) {
-            BigDecimal difference = last.getClose().subtract(stock.getClose()).abs().setScale(10, RoundingMode.HALF_EVEN);
-            if (stock.getClose().compareTo(last.getClose()) > 0) {
+            BigDecimal difference = stock.getClose().subtract(last.getClose());
+            if (difference.doubleValue() > 0.000001d) {
                 profits.add(difference);
             } else {
                 losts.add(difference);
@@ -55,8 +55,12 @@ public class CalculUtils {
             last = stock;
         }
         BigDecimal avgProfit = exponentialAverageBigDecimal(profits, period);
-        BigDecimal avgLost = exponentialAverageBigDecimal(losts, period);
-        BigDecimal rsi = new BigDecimal(100).multiply(avgProfit).divide(avgLost.add(avgProfit), RoundingMode.HALF_EVEN);
+        BigDecimal avgLost = exponentialAverageBigDecimal(losts, period).abs();
+        BigDecimal multiply = new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN).multiply(avgProfit);
+        logger.debug("multiply={}", multiply);
+        BigDecimal sum = avgProfit.add(avgLost);
+        logger.debug("sum={}", sum);
+        BigDecimal rsi = multiply.divide(sum, RoundingMode.HALF_EVEN);
         logger.debug("Rsi={}", rsi);
         return rsi;
     }
@@ -75,7 +79,7 @@ public class CalculUtils {
         return new BigDecimal(average.getAsDouble());
     }
 
-    public static BigDecimal exponentialAverageBigDecimal(List<BigDecimal> stocks, int period) {
+    private static BigDecimal exponentialAverageBigDecimal(List<BigDecimal> stocks, int period) {
         List<BigDecimal> limitedStock = stocks.stream().limit(period).collect(Collectors.toList());
         logger.debug("Start point collections={}, {}", limitedStock.size(), limitedStock);
         BigDecimal avg = arithmeticAverageBigDecimal(limitedStock, period);
@@ -87,7 +91,7 @@ public class CalculUtils {
         BigDecimal alpha = new BigDecimal(2).setScale(5, RoundingMode.HALF_EVEN).divide(new BigDecimal(period + 1), RoundingMode.HALF_EVEN);
 
         logger.debug("alpha={}", alpha);
-        logger.debug("Avg start={}", avg.doubleValue());
+        logger.debug("Avg start={}", avg);
 
         // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
         // Z = value
@@ -99,7 +103,7 @@ public class CalculUtils {
             BigDecimal tmp2 = tmp.multiply(avg);
             avg = tmp2.add(alpha.multiply(bigDecimal));
         }
-        logger.debug("Mme={}", avg.doubleValue());
+        logger.debug("Mme={}", avg);
         return avg;
 
     }
