@@ -32,6 +32,7 @@ public class CalculUtils {
      * Formula: 100 - (100 / (1 + (AvgProfit / AvgLost)))
      * Avg calculate from mme
      * http://www.boursorama.com/q-comment-calculer-le-rsi/2467
+     * http://en.wikipedia.org/wiki/Relative_strength_index
      *
      * @param stocks
      * @param period
@@ -44,18 +45,30 @@ public class CalculUtils {
         List<BigDecimal> profits = new ArrayList<>();
         List<BigDecimal> losts = new ArrayList<>();
 
+        List<BigDecimal> inits = new ArrayList<>();
+        for (int i = 0; i < period; i++) {
+            inits.add(stocks.remove(0).getClose());
+        }
+
+        BigDecimal init = arithmeticAverageBigDecimal(inits, period);
+
         Stock last = stocks.remove(0);
         for (Stock stock : stocks) {
-            BigDecimal difference = stock.getClose().subtract(last.getClose());
-            if (difference.doubleValue() > 0.000001d) {
-                profits.add(difference);
+            int bigger = stock.getClose().compareTo(last.getClose());
+            if (bigger == 1) {
+                profits.add(stock.getClose().subtract(last.getClose()));
+                losts.add(BigDecimal.ZERO);
+            } else if (bigger == -1) {
+                losts.add(last.getClose().subtract(stock.getClose()));
+                profits.add(BigDecimal.ZERO);
             } else {
-                losts.add(difference);
+                losts.add(BigDecimal.ZERO);
+                profits.add(BigDecimal.ZERO);
             }
             last = stock;
         }
-        BigDecimal avgProfit = exponentialAverageBigDecimal(profits, period);
-        BigDecimal avgLost = exponentialAverageBigDecimal(losts, period).abs();
+        BigDecimal avgProfit = exponentialAverageBigDecimal(profits, period, init);
+        BigDecimal avgLost = exponentialAverageBigDecimal(losts, period, init);
         BigDecimal multiply = new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN).multiply(avgProfit);
         logger.debug("multiply={}", multiply);
         BigDecimal sum = avgProfit.add(avgLost);
@@ -63,6 +76,27 @@ public class CalculUtils {
         BigDecimal rsi = multiply.divide(sum, RoundingMode.HALF_EVEN);
         logger.debug("Rsi={}", rsi);
         return rsi;
+    }
+
+    private static BigDecimal exponentialAverageBigDecimal(List<BigDecimal> stocks, int period, BigDecimal init) {
+        BigDecimal avg = init;
+        BigDecimal alpha = new BigDecimal(2).setScale(5, RoundingMode.HALF_EVEN).divide(new BigDecimal(period + 1), RoundingMode.HALF_EVEN);
+
+        logger.debug("alpha={}", alpha);
+        logger.debug("Avg start={}", avg);
+
+        // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
+        // Z = value
+        // alpha = 2 / (period + 1)
+
+        logger.debug("Next collections={}, {}", stocks.size(), stocks);
+        for (BigDecimal bigDecimal : stocks) {
+            BigDecimal tmp = new BigDecimal(1).setScale(5, RoundingMode.HALF_EVEN).subtract(alpha);
+            BigDecimal tmp2 = tmp.multiply(avg);
+            avg = tmp2.add(alpha.multiply(bigDecimal));
+        }
+        logger.debug("Mme={}", avg);
+        return avg;
     }
 
     public static BigDecimal arithmeticAverage(List<Stock> stocks, int period) {

@@ -49,7 +49,8 @@ public class CalculUtilsTest {
         List<Stock> stockList = getStocksAca20140902();
         // exemple ACA 28/08/2014
 //        CalculUtils.rsi(stockList, 14).setScale(3, RoundingMode.HALF_EVEN);
-        Assert.assertEquals(new BigDecimal("63.708"), CalculUtils.rsi(stockList, 14).setScale(3, RoundingMode.HALF_EVEN));
+//            Collections.reverse(stockList);
+        Assert.assertEquals(new BigDecimal("63.708"), CalculUtils.rsi(stockList/*.stream().limit(29).collect(Collectors.toList())*/, 14).setScale(3, RoundingMode.HALF_EVEN));
 
         stockList.add(createStock(LocalDate.of(2014, 9, 3), 11.480));
         stockList.add(createStock(LocalDate.of(2014, 9, 4), 11.750));
