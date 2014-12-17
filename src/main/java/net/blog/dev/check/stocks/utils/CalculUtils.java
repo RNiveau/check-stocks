@@ -33,6 +33,7 @@ public class CalculUtils {
      * Avg calculate from mme
      * http://www.boursorama.com/q-comment-calculer-le-rsi/2467
      * http://en.wikipedia.org/wiki/Relative_strength_index
+     * http://www.macroption.com/rsi-calculation/
      *
      * @param stocks
      * @param period
@@ -45,13 +46,6 @@ public class CalculUtils {
         List<BigDecimal> profits = new ArrayList<>();
         List<BigDecimal> losts = new ArrayList<>();
 
-        List<BigDecimal> inits = new ArrayList<>();
-        for (int i = 0; i < period; i++) {
-            inits.add(stocks.remove(0).getClose());
-        }
-
-        BigDecimal init = arithmeticAverageBigDecimal(inits, period);
-
         Stock last = stocks.remove(0);
         for (Stock stock : stocks) {
             int bigger = stock.getClose().compareTo(last.getClose());
@@ -59,7 +53,7 @@ public class CalculUtils {
                 profits.add(stock.getClose().subtract(last.getClose()));
                 losts.add(BigDecimal.ZERO);
             } else if (bigger == -1) {
-                losts.add(last.getClose().subtract(stock.getClose()));
+                losts.add(stock.getClose().subtract(last.getClose()).abs());
                 profits.add(BigDecimal.ZERO);
             } else {
                 losts.add(BigDecimal.ZERO);
@@ -67,36 +61,11 @@ public class CalculUtils {
             }
             last = stock;
         }
-        BigDecimal avgProfit = exponentialAverageBigDecimal(profits, period, init);
-        BigDecimal avgLost = exponentialAverageBigDecimal(losts, period, init);
-        BigDecimal multiply = new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN).multiply(avgProfit);
-        logger.debug("multiply={}", multiply);
-        BigDecimal sum = avgProfit.add(avgLost);
-        logger.debug("sum={}", sum);
-        BigDecimal rsi = multiply.divide(sum, RoundingMode.HALF_EVEN);
-        logger.debug("Rsi={}", rsi);
-        return rsi;
-    }
+        BigDecimal avgProfit = wilderAverageBigDecimal(profits, period);
+        BigDecimal avgLost = wilderAverageBigDecimal(losts, period);
+        BigDecimal rs = avgProfit.divide(avgLost, RoundingMode.HALF_EVEN);
 
-    private static BigDecimal exponentialAverageBigDecimal(List<BigDecimal> stocks, int period, BigDecimal init) {
-        BigDecimal avg = init;
-        BigDecimal alpha = new BigDecimal(2).setScale(5, RoundingMode.HALF_EVEN).divide(new BigDecimal(period + 1), RoundingMode.HALF_EVEN);
-
-        logger.debug("alpha={}", alpha);
-        logger.debug("Avg start={}", avg);
-
-        // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
-        // Z = value
-        // alpha = 2 / (period + 1)
-
-        logger.debug("Next collections={}, {}", stocks.size(), stocks);
-        for (BigDecimal bigDecimal : stocks) {
-            BigDecimal tmp = new BigDecimal(1).setScale(5, RoundingMode.HALF_EVEN).subtract(alpha);
-            BigDecimal tmp2 = tmp.multiply(avg);
-            avg = tmp2.add(alpha.multiply(bigDecimal));
-        }
-        logger.debug("Mme={}", avg);
-        return avg;
+        return new BigDecimal(100).setScale(5).subtract(new BigDecimal(100).setScale(10).divide(new BigDecimal(1).setScale(5).add(rs), RoundingMode.HALF_EVEN));
     }
 
     public static BigDecimal arithmeticAverage(List<Stock> stocks, int period) {
@@ -122,7 +91,7 @@ public class CalculUtils {
         for (int i = 0; i < period; i++)
             stocks.remove(0);
 
-        BigDecimal alpha = new BigDecimal(2).setScale(5, RoundingMode.HALF_EVEN).divide(new BigDecimal(period + 1), RoundingMode.HALF_EVEN);
+        BigDecimal alpha = new BigDecimal(2).setScale(5).divide(new BigDecimal(period + 1).setScale(5), RoundingMode.HALF_EVEN);
 
         logger.debug("alpha={}", alpha);
         logger.debug("Avg start={}", avg);
@@ -133,7 +102,36 @@ public class CalculUtils {
 
         logger.debug("Next collections={}, {}", stocks.size(), stocks);
         for (BigDecimal bigDecimal : stocks) {
-            BigDecimal tmp = new BigDecimal(1).setScale(5, RoundingMode.HALF_EVEN).subtract(alpha);
+            BigDecimal tmp = new BigDecimal(1).subtract(alpha);
+            BigDecimal tmp2 = tmp.multiply(avg);
+            avg = tmp2.add(alpha.multiply(bigDecimal));
+        }
+        logger.debug("Mme={}", avg);
+        return avg;
+
+    }
+
+    private static BigDecimal wilderAverageBigDecimal(List<BigDecimal> stocks, int period) {
+        List<BigDecimal> limitedStock = stocks.stream().limit(period).collect(Collectors.toList());
+        logger.debug("Start point collections={}, {}", limitedStock.size(), limitedStock);
+        BigDecimal avg = arithmeticAverageBigDecimal(limitedStock, period);
+
+        // init mme
+        for (int i = 0; i < period; i++)
+            stocks.remove(0);
+
+        BigDecimal alpha = new BigDecimal(1).setScale(5).divide(new BigDecimal(period).setScale(5), RoundingMode.HALF_EVEN);
+
+        logger.debug("alpha={}", alpha);
+        logger.debug("Avg start={}", avg);
+
+        // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
+        // Z = value
+        // alpha = 2 / (period + 1)
+
+        logger.debug("Next collections={}, {}", stocks.size(), stocks);
+        for (BigDecimal bigDecimal : stocks) {
+            BigDecimal tmp = new BigDecimal(1).subtract(alpha);
             BigDecimal tmp2 = tmp.multiply(avg);
             avg = tmp2.add(alpha.multiply(bigDecimal));
         }
