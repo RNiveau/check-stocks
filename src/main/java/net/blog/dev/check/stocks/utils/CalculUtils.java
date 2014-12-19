@@ -1,6 +1,7 @@
 package net.blog.dev.check.stocks.utils;
 
-import net.blog.dev.check.stocks.dto.Stock;
+import net.blog.dev.check.stocks.domain.Stock;
+import net.blog.dev.check.stocks.domain.indicators.DynamicRsi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,9 @@ public class CalculUtils {
         BigDecimal avgLost = wilderAverageBigDecimal(losts, period);
         BigDecimal rs = avgProfit.divide(avgLost, RoundingMode.HALF_EVEN);
 
-        return new BigDecimal(100).setScale(5).subtract(new BigDecimal(100).setScale(10).divide(new BigDecimal(1).setScale(5).add(rs), RoundingMode.HALF_EVEN));
+        BigDecimal rsi = new BigDecimal(100).setScale(5).subtract(new BigDecimal(100).setScale(5).divide(new BigDecimal(1).setScale(5).add(rs), RoundingMode.HALF_EVEN));
+        logger.debug("Rsi={}", rsi);
+        return rsi;
     }
 
     public static BigDecimal arithmeticAverage(List<Stock> stocks, int period) {
@@ -84,7 +87,6 @@ public class CalculUtils {
 
     private static BigDecimal exponentialAverageBigDecimal(List<BigDecimal> stocks, int period) {
         List<BigDecimal> limitedStock = stocks.stream().limit(period).collect(Collectors.toList());
-        logger.debug("Start point collections={}, {}", limitedStock.size(), limitedStock);
         BigDecimal avg = arithmeticAverageBigDecimal(limitedStock, period);
 
         // init mme
@@ -93,14 +95,10 @@ public class CalculUtils {
 
         BigDecimal alpha = new BigDecimal(2).setScale(5).divide(new BigDecimal(period + 1).setScale(5), RoundingMode.HALF_EVEN);
 
-        logger.debug("alpha={}", alpha);
-        logger.debug("Avg start={}", avg);
-
         // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
         // Z = value
         // alpha = 2 / (period + 1)
 
-        logger.debug("Next collections={}, {}", stocks.size(), stocks);
         for (BigDecimal bigDecimal : stocks) {
             BigDecimal tmp = new BigDecimal(1).subtract(alpha);
             BigDecimal tmp2 = tmp.multiply(avg);
@@ -113,7 +111,6 @@ public class CalculUtils {
 
     private static BigDecimal wilderAverageBigDecimal(List<BigDecimal> stocks, int period) {
         List<BigDecimal> limitedStock = stocks.stream().limit(period).collect(Collectors.toList());
-        logger.debug("Start point collections={}, {}", limitedStock.size(), limitedStock);
         BigDecimal avg = arithmeticAverageBigDecimal(limitedStock, period);
 
         // init mme
@@ -122,14 +119,10 @@ public class CalculUtils {
 
         BigDecimal alpha = new BigDecimal(1).setScale(5).divide(new BigDecimal(period).setScale(5), RoundingMode.HALF_EVEN);
 
-        logger.debug("alpha={}", alpha);
-        logger.debug("Avg start={}", avg);
-
         // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
         // Z = value
         // alpha = 2 / (period + 1)
 
-        logger.debug("Next collections={}, {}", stocks.size(), stocks);
         for (BigDecimal bigDecimal : stocks) {
             BigDecimal tmp = new BigDecimal(1).subtract(alpha);
             BigDecimal tmp2 = tmp.multiply(avg);
@@ -146,5 +139,38 @@ public class CalculUtils {
         stocks.sort(sort);
         List<BigDecimal> lists = stocks.stream().map(stock -> stock.getClose()).collect(Collectors.toList());
         return exponentialAverageBigDecimal(lists, period);
+    }
+
+    public static DynamicRsi dynamicRsi(List<Stock> stocks, int period, int avgPeriod) {
+        stocks.sort(reverseSort);
+
+        List<Stock> lastStocks = stocks.stream().limit(avgPeriod).collect(Collectors.toList());
+        lastStocks.sort(sort);
+
+        stocks.sort(sort);
+        final List<Stock> workingStocks = stocks.stream().limit(stocks.size() - avgPeriod).collect(Collectors.toList());
+
+        List<BigDecimal> rsis = new ArrayList<>();
+        lastStocks.forEach(last -> {
+            workingStocks.add(last);
+            rsis.add(rsi(workingStocks, period));
+        });
+
+        DynamicRsi dynamicRsi = new DynamicRsi();
+        dynamicRsi.setRsi(rsis.get(rsis.size() - 1));
+
+        BigDecimal average = arithmeticAverageBigDecimal(rsis, avgPeriod);
+        double sum = rsis.stream().mapToDouble(rsi -> Math.pow(rsi.subtract(new BigDecimal(average.doubleValue())).doubleValue(), 2)).sum();
+        logger.debug("Sum={}", sum);
+        sum /= avgPeriod;
+        logger.debug("Variance={}", sum);
+
+        BigDecimal std = new BigDecimal(Math.sqrt(sum));
+        logger.debug("Std={}", std);
+
+        dynamicRsi.setStd(std);
+        dynamicRsi.setStdHigh(average.add(std));
+        dynamicRsi.setStdLow(average.subtract(std));
+        return dynamicRsi;
     }
 }

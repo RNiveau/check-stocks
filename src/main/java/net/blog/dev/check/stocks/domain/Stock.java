@@ -1,4 +1,4 @@
-package net.blog.dev.check.stocks.dto;
+package net.blog.dev.check.stocks.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
