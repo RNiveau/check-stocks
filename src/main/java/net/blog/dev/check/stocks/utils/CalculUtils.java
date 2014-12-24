@@ -160,12 +160,14 @@ public class CalculUtils {
         dynamicRsi.setRsi(rsis.get(rsis.size() - 1));
 
         BigDecimal average = arithmeticAverageBigDecimal(rsis, avgPeriod);
-        double sum = rsis.stream().mapToDouble(rsi -> Math.pow(rsi.subtract(new BigDecimal(average.doubleValue())).doubleValue(), 2)).sum();
-        logger.debug("Sum={}", sum);
-        sum /= avgPeriod;
-        logger.debug("Variance={}", sum);
 
-        BigDecimal std = new BigDecimal(Math.sqrt(sum));
+        // variance simple
+        double variance = rsis.stream().mapToDouble(rsi -> Math.pow(rsi.subtract(new BigDecimal(average.doubleValue())).doubleValue(), 2)).sum();
+        logger.debug("Sum={}", variance);
+        variance /= avgPeriod;
+        logger.debug("Variance={}", variance);
+
+        BigDecimal std = new BigDecimal(Math.sqrt(variance));
         logger.debug("Std={}", std);
 
         dynamicRsi.setStd(std);
