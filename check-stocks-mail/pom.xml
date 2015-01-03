@@ -15,12 +15,32 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <properties>
+        <dagger.version>1.2.2</dagger.version>
+        <sendgrid.version>2.1.0</sendgrid.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.sendgrid</groupId>
             <artifactId>sendgrid-java</artifactId>
-            <version>2.1.0</version>
+            <version>${sendgrid.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.blog.dev</groupId>
+            <artifactId>check-stock-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>${dagger.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.dagger</groupId>
+            <artifactId>dagger-compiler</artifactId>
+            <version>${dagger.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

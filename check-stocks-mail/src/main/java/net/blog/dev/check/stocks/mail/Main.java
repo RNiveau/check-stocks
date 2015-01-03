@@ -1,23 +1,19 @@
 package net.blog.dev.check.stocks.mail;
 
-import com.sendgrid.SendGrid;
-import com.sendgrid.SendGridException;
+import dagger.ObjectGraph;
+import net.blog.dev.check.stocks.mail.controllers.ScanStockController;
+import net.blog.dev.check.stocks.mail.modules.MailModule;
 
 /**
  * Created by Xebia on 30/12/14.
  */
 public class Main {
 
-    public static void main(String[] args) throws SendGridException {
-        SendGrid sendgrid = new SendGrid(System.getenv("SENDGRID_USERNAME"), System.getenv("SENDGRID_PASSWORD"));
+    public static void main(String[] args)  {
 
-        SendGrid.Email email = new SendGrid.Email();
-        email.addTo(System.getenv("TEST_MAIL"));
-        email.setFrom("other@example.com");
-        email.setSubject("Hello World");
-        email.setHtml("<h1>My first email through SendGrid");
-
-        sendgrid.send(email);
+        ObjectGraph objectGraph = ObjectGraph.create(MailModule.class);
+        ScanStockController scanStockController = objectGraph.get(ScanStockController.class);
+        scanStockController.execute();
     }
 
 
