@@ -7,26 +7,36 @@ import net.blog.dev.check.stocks.mail.services.MailServiceImpl;
 import net.blog.dev.check.stocks.mail.services.ScanStockServiceImpl;
 import net.blog.dev.check.stocks.mail.services.api.IMailService;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
+import net.blog.dev.services.YahooServiceImpl;
+import net.blog.dev.services.api.IYahooService;
 
 import javax.inject.Singleton;
 
 /**
  * Created by Xebia on 02/01/15.
  */
-@Module(injects = {
-        ScanStockController.class
-})
+@Module(injects =
+        ScanStockController.class,
+        addsTo = PropertiesModule.class
+)
 public class MailModule {
 
-    @Provides
-    @Singleton
+    //    @Provides
+    //   @Singleton
     public IMailService provideMailService() {
         return new MailServiceImpl();
     }
 
     @Provides
     @Singleton
-    public IScanStockService provideScanStockService(IMailService mailService) {
-        return new ScanStockServiceImpl(mailService);
+    public IYahooService provideYahooService() {
+        return new YahooServiceImpl();
     }
+
+    @Provides
+    @Singleton
+    public IScanStockService provideScanStockService(String codes, IYahooService yahooService) {
+        return new ScanStockServiceImpl(codes, yahooService);
+    }
+
 }
