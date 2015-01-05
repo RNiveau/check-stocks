@@ -15,7 +15,7 @@ public class PropertiesModule {
     }
 
     @Provides
-    @Named("stocks.code")
+    @Named("stocks.codes")
     public String providesStocksCode() {
         return "ACA,CAP";
     }

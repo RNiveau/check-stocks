@@ -10,6 +10,7 @@ import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.services.YahooServiceImpl;
 import net.blog.dev.services.api.IYahooService;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -35,7 +36,7 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IScanStockService provideScanStockService(String codes, IYahooService yahooService) {
+    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, IYahooService yahooService) {
         return new ScanStockServiceImpl(codes, yahooService);
     }
 
