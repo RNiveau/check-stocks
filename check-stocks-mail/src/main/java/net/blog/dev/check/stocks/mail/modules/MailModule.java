@@ -18,12 +18,13 @@ import javax.inject.Singleton;
  */
 @Module(injects =
         ScanStockController.class,
-        addsTo = PropertiesModule.class
+        includes = PropertiesModule.class
+
 )
 public class MailModule {
 
-    //    @Provides
-    //   @Singleton
+    @Provides
+    @Singleton
     public IMailService provideMailService() {
         return new MailServiceImpl();
     }
