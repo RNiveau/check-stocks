@@ -1,10 +1,16 @@
 package net.blog.dev.check.stocks.mail.services;
 
+import net.blog.dev.check.stocks.domain.Stock;
+import net.blog.dev.check.stocks.mail.rules.api.IRule;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.services.api.IYahooService;
+import net.blog.dev.services.domain.YahooResponse;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Xebia on 02/01/15.
@@ -15,13 +21,24 @@ public class ScanStockServiceImpl implements IScanStockService {
 
     private String codes;
 
+    private List<IRule> rules;
+
     @Inject
-    public ScanStockServiceImpl(@Named("stocks.codes") String codes, IYahooService yahooService) {
+    public ScanStockServiceImpl(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService) {
         this.yahooService = yahooService;
         this.codes = codes;
+        this.rules = rules;
     }
 
     public void scan() {
+        getListCode().stream().forEach((code) -> {
+            YahooResponse historic = yahooService.getHistoric(code, 12);
+            rules.forEach(rule -> rule.isEligible(new ArrayList<Stock>()));
+        });
+    }
+
+    private List<String> getListCode() {
+        return Arrays.asList(codes.split(","));
     }
 
 }
