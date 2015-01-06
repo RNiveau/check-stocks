@@ -3,6 +3,7 @@ package net.blog.dev.check.stocks.mail.services;
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mail.rules.api.IRule;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
+import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.services.api.IYahooService;
 import net.blog.dev.services.domain.YahooResponse;
 
@@ -23,11 +24,14 @@ public class ScanStockServiceImpl implements IScanStockService {
 
     private List<IRule> rules;
 
+    private IStockMapper stockMapper;
+
     @Inject
-    public ScanStockServiceImpl(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService) {
+    public ScanStockServiceImpl(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService, IStockMapper stockMapper) {
         this.yahooService = yahooService;
         this.codes = codes;
         this.rules = rules;
+        this.stockMapper = stockMapper;
     }
 
     public void scan() {

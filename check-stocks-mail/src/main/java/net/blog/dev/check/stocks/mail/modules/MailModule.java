@@ -9,6 +9,8 @@ import net.blog.dev.check.stocks.mail.services.MailServiceImpl;
 import net.blog.dev.check.stocks.mail.services.ScanStockServiceImpl;
 import net.blog.dev.check.stocks.mail.services.api.IMailService;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
+import net.blog.dev.check.stocks.mappers.StockMapperImpl;
+import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.services.YahooServiceImpl;
 import net.blog.dev.services.api.IYahooService;
 
@@ -41,8 +43,14 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService) {
-        return new ScanStockServiceImpl(codes, rules, yahooService);
+    public IStockMapper provideStockMapper() {
+        return new StockMapperImpl();
+    }
+
+    @Provides
+    @Singleton
+    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService,  IStockMapper stockMapper) {
+        return new ScanStockServiceImpl(codes, rules, yahooService, stockMapper);
     }
 
     @Provides
