@@ -17,13 +17,13 @@ public class CalculUtils {
 
     private static Logger logger = LoggerFactory.getLogger(CalculUtils.class);
 
-    private static Comparator<? super Stock> reverseSort = (s1, s2) -> {
+    public static Comparator<? super Stock> reverseSort = (s1, s2) -> {
         if (s1.getDate().equals(s2.getDate()))
             return 0;
         return s1.getDate().isBefore(s2.getDate()) ? 1 : -1;
     };
 
-    private static Comparator<? super Stock> sort = (s1, s2) -> {
+    public static Comparator<? super Stock> sort = (s1, s2) -> {
         if (s1.getDate().equals(s2.getDate()))
             return 0;
         return s1.getDate().isBefore(s2.getDate()) ? -1 : 1;

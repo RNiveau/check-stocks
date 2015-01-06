@@ -2,6 +2,8 @@ package net.blog.dev.check.stocks.mail.services;
 
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mail.rules.api.IRule;
+import net.blog.dev.check.stocks.mail.rules.domain.RuleResult;
+import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.services.api.IYahooService;
@@ -12,6 +14,7 @@ import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Xebia on 02/01/15.
@@ -35,14 +38,27 @@ public class ScanStockServiceImpl implements IScanStockService {
     }
 
     public void scan() {
+        final List<RuleResult> ruleResults = new ArrayList<>();
         getListCode().stream().forEach((code) -> {
-            YahooResponse historic = yahooService.getHistoric(code, 12);
-            rules.forEach(rule -> rule.isEligible(new ArrayList<Stock>()));
+            YahooResponse yahooResponse = yahooService.getHistoric(code, 12);
+            List<Stock> stocks = stockMapper.mappeYahooToStock(yahooResponse);
+            rules.forEach(rule -> {
+                Optional<RuleStock> eligible = rule.isEligible(stocks, code);
+                eligible.ifPresent(stock -> {
+                    Optional<RuleResult> matchingRule = ruleResults.stream().filter(r -> r.getName().equals(rule.getName())).findFirst();
+                    RuleResult ruleResult1 = matchingRule.orElseGet(() -> {
+                        RuleResult ruleResult = new RuleResult();
+                        ruleResult.setName(rule.getName());
+                        ruleResults.add(ruleResult);
+                        return ruleResult;
+                    });
+                    ruleResult1.addStock(stock);
+                });
+            });
         });
     }
 
     private List<String> getListCode() {
         return Arrays.asList(codes.split(","));
     }
-
 }
