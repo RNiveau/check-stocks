@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * Created by romainn on 05/01/2015.
  */
-public class RuleMobileAvg20 implements IRule {
+public class RuleMobileAvg20 extends AbstractRule implements IRule {
 
     @Override
     public String getName() {
@@ -23,28 +23,31 @@ public class RuleMobileAvg20 implements IRule {
 
     @Override
     public Optional<RuleStock> isEligible(List<Stock> stockList, String code) {
-         RuleStock ruleStock = null;
-        if (CollectionUtils.isNotEmpty(stockList)) {
-            stockList.sort(CalculUtils.reverseSort);
-            BigDecimal lastPrice = stockList.get(0).getClose();
+        Optional<RuleStock> eligible = super.isEligible(stockList, code);
+        RuleStock ruleStock = null;
+        if (eligible.isPresent()) {
+            if (CollectionUtils.isNotEmpty(stockList)) {
+                stockList.sort(CalculUtils.reverseSort);
+                BigDecimal lastPrice = stockList.get(0).getClose();
 
-            List<BigDecimal> lastHigh = new ArrayList<>();
-            List<BigDecimal> lastLow = new ArrayList<>();
+                List<BigDecimal> lastHigh = new ArrayList<>();
+                List<BigDecimal> lastLow = new ArrayList<>();
 
-            stockList.stream().forEach(stock -> {
-                lastHigh.add(stock.getHigh());
-                lastLow.add(stock.getLow());
-            });
+                stockList.stream().forEach(stock -> {
+                    lastHigh.add(stock.getHigh());
+                    lastLow.add(stock.getLow());
+                });
 
-            BigDecimal avgHigh = CalculUtils.arithmeticAverageBigDecimal(lastHigh, 20);
-            BigDecimal avgLow = CalculUtils.arithmeticAverageBigDecimal(lastLow, 20);
+                BigDecimal avgHigh = CalculUtils.arithmeticAverageBigDecimal(lastHigh, 20);
+                BigDecimal avgLow = CalculUtils.arithmeticAverageBigDecimal(lastLow, 20);
 
-            if (lastPrice.doubleValue() < avgHigh.doubleValue() && lastPrice.doubleValue() > avgLow.doubleValue()) {
-                ruleStock = new RuleStock();
-                ruleStock.setCode(code);
-                ruleStock.setPrice(lastPrice);
+                if (lastPrice.doubleValue() < avgHigh.doubleValue() && lastPrice.doubleValue() > avgLow.doubleValue()) {
+                    ruleStock = new RuleStock();
+                    ruleStock.setCode(code);
+                    ruleStock.setPrice(lastPrice);
+                }
             }
         }
-        return ruleStock == null ? Optional.empty() : Optional.of(ruleStock);
+        return Optional.ofNullable(ruleStock);
     }
 }
