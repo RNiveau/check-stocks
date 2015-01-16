@@ -37,7 +37,7 @@ public class ScanStockServiceImpl implements IScanStockService {
         this.stockMapper = stockMapper;
     }
 
-    public void scan() {
+    public List<RuleResult> scan() {
         final List<RuleResult> ruleResults = new ArrayList<>();
         getListCode().stream().forEach((code) -> {
             YahooResponse yahooResponse = yahooService.getHistoric(code, 12);
@@ -46,16 +46,19 @@ public class ScanStockServiceImpl implements IScanStockService {
                 Optional<RuleStock> eligible = rule.isEligible(stocks, code);
                 eligible.ifPresent(stock -> {
                     Optional<RuleResult> matchingRule = ruleResults.stream().filter(r -> r.getName().equals(rule.getName())).findFirst();
-                    RuleResult ruleResult1 = matchingRule.orElseGet(() -> {
-                        RuleResult ruleResult = new RuleResult();
-                        ruleResult.setName(rule.getName());
-                        ruleResults.add(ruleResult);
-                        return ruleResult;
-                    });
-                    ruleResult1.addStock(stock);
+                    RuleResult ruleResult = matchingRule.orElseGet(() -> createRuleResult(ruleResults, rule));
+                    ruleResult.addStock(stock);
                 });
             });
         });
+        return ruleResults;
+    }
+
+    private RuleResult createRuleResult(List<RuleResult> ruleResults, IRule rule) {
+        RuleResult newRuleResult = new RuleResult();
+        newRuleResult.setName(rule.getName());
+        ruleResults.add(newRuleResult);
+        return newRuleResult;
     }
 
     private List<String> getListCode() {

@@ -13,5 +13,4 @@ public class PropertiesModule {
     public String providesStocksCode() {
         return "ACA,CAP,ALU";
     }
-
 }
