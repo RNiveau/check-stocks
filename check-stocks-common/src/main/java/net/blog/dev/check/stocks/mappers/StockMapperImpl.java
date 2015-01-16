@@ -2,7 +2,7 @@ package net.blog.dev.check.stocks.mappers;
 
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
-import net.blog.dev.services.domain.YahooResponse;
+import net.blog.dev.services.domain.historic.YahooResponse;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.math.BigDecimal;

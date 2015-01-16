@@ -7,7 +7,7 @@ import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.services.api.IYahooService;
-import net.blog.dev.services.domain.YahooResponse;
+import net.blog.dev.services.domain.historic.YahooResponse;
 
 import javax.inject.Inject;
 import javax.inject.Named;

@@ -1,6 +1,6 @@
 package net.blog.dev.services.api;
 
-import net.blog.dev.services.domain.YahooResponse;
+import net.blog.dev.services.domain.historic.YahooResponse;
 
 /**
  * Created by Xebia on 04/01/15.

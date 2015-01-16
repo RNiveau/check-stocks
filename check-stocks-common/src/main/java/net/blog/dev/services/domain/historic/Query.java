@@ -1,4 +1,4 @@
-package net.blog.dev.services.domain;
+package net.blog.dev.services.domain.historic;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;

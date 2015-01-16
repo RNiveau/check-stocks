@@ -1,7 +1,7 @@
 package net.blog.dev.check.stocks.mappers.api;
 
 import net.blog.dev.check.stocks.domain.Stock;
-import net.blog.dev.services.domain.YahooResponse;
+import net.blog.dev.services.domain.historic.YahooResponse;
 
 import java.util.List;
 
