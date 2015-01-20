@@ -14,6 +14,8 @@ public class AbstractRule {
 
     public Optional<RuleStock> isEligible(List<Stock> stockList, String code) {
         stockList.sort(CalculUtils.reverseSort);
+        if (stockList.size() == 0)
+            return Optional.empty();
         Stock stock = stockList.get(0);
         return stock.getVolume().intValue() > 100000 ? Optional.of(new RuleStock()) : Optional.empty();
     }

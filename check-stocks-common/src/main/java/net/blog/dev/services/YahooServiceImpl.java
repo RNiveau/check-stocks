@@ -2,8 +2,8 @@ package net.blog.dev.services;
 
 import net.blog.dev.services.api.IYahooService;
 import net.blog.dev.services.domain.historic.HistoricQuote;
-import net.blog.dev.services.domain.quote.Quote;
 import net.blog.dev.services.domain.historic.YahooResponse;
+import net.blog.dev.services.domain.quote.Quote;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -61,10 +61,13 @@ public class YahooServiceImpl implements IYahooService {
             YahooResponse yahooResponse = mapper.readValue(json,
                     new TypeReference<YahooResponse>() {
                     });
+            if (yahooResponse.getQuery().getResults() == null)
+                return null;
             getQuote(code).ifPresent(quote -> {
+                Float close = quote.getAsk() != null ? quote.getAsk() : quote.getLastTradePriceOnly();
                 HistoricQuote historicQuote = new HistoricQuote();
-                historicQuote.setAdj_Close(quote.getAsk());
-                historicQuote.setClose(quote.getAsk());
+                historicQuote.setAdj_Close(close);
+                historicQuote.setClose(close);
                 historicQuote.setDate(new Date());
                 historicQuote.setHigh(quote.getDaysHigh());
                 historicQuote.setLow(quote.getDaysLow());
@@ -101,6 +104,8 @@ public class YahooServiceImpl implements IYahooService {
             net.blog.dev.services.domain.quote.YahooResponse yahooResponse = mapper.readValue(json,
                     new TypeReference<net.blog.dev.services.domain.quote.YahooResponse>() {
                     });
+            if (yahooResponse.getQuery().getResults() == null)
+                return Optional.empty();
             return Optional.ofNullable(yahooResponse.getQuery().getResults().getQuote());
         } catch (IOException e) {
             e.printStackTrace();
