@@ -1,8 +1,9 @@
 package net.blog.dev.check.stocks.mail.rules;
 
+import net.blog.dev.check.stocks.domain.CompleteStock;
 import net.blog.dev.check.stocks.domain.Stock;
+import net.blog.dev.check.stocks.mail.rules.api.IRule;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
-import net.blog.dev.check.stocks.utils.CalculUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,14 +11,13 @@ import java.util.Optional;
 /**
  * Created by romainn on 15/01/2015.
  */
-public class AbstractRule {
+public abstract class AbstractRule implements IRule {
 
-    public Optional<RuleStock> isEligible(List<Stock> stockList, String code) {
-        stockList.sort(CalculUtils.reverseSort);
+    @Override
+    public Optional<RuleStock> isEligible(List<Stock> stockList, CompleteStock lastStock) {
         if (stockList.size() == 0)
             return Optional.empty();
-        Stock stock = stockList.get(0);
-        return stock.getVolume().intValue() > 100000 ? Optional.of(new RuleStock()) : Optional.empty();
+        return lastStock.getVolume().intValue() > 100000 ? Optional.of(new RuleStock()) : Optional.empty();
     }
 
 }

@@ -1,11 +1,14 @@
 package net.blog.dev.check.stocks.mappers;
 
+import net.blog.dev.check.stocks.domain.CompleteStock;
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.services.domain.historic.YahooResponse;
+import net.blog.dev.services.domain.quote.Quote;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,5 +34,23 @@ public class StockMapperImpl implements IStockMapper {
             }).collect(Collectors.toList());
         }
         return stocks;
+    }
+
+    @Override
+    public CompleteStock mappeQuoteToStock(Quote quote) {
+        CompleteStock completeStock = new CompleteStock();
+        if (quote != null) {
+            Float close = quote.getAsk() != null ? quote.getAsk() : quote.getLastTradePriceOnly();
+            completeStock.setName(quote.getName());
+            completeStock.setCode(quote.getSymbol());
+            completeStock.setLastVariation(new BigDecimal(quote.getChangeinPercent()));
+            completeStock.setClose(new BigDecimal(close));
+            completeStock.setDate(LocalDate.now());
+            completeStock.setHigh(new BigDecimal(quote.getDaysHigh()));
+            completeStock.setLow(new BigDecimal(quote.getDaysLow()));
+            completeStock.setOpen(new BigDecimal(quote.getOpen()));
+            completeStock.setVolume(new BigDecimal(quote.getVolume()));
+        }
+        return completeStock;
     }
 }

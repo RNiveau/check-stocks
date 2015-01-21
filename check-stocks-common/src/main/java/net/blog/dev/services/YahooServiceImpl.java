@@ -1,7 +1,6 @@
 package net.blog.dev.services;
 
 import net.blog.dev.services.api.IYahooService;
-import net.blog.dev.services.domain.historic.HistoricQuote;
 import net.blog.dev.services.domain.historic.YahooResponse;
 import net.blog.dev.services.domain.quote.Quote;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -16,7 +15,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -29,10 +27,10 @@ public class YahooServiceImpl implements IYahooService {
     final private ObjectMapper mapper = new ObjectMapper();
 
 
-    public YahooResponse getHistoric(String code, Integer duration) {
+    public Optional<YahooResponse> getHistoric(String code, Integer duration) {
 
         if (code == null || duration == null)
-            return null;
+            return Optional.empty();
 
         LocalDate date = LocalDate.now();
         LocalDate dateBefore = date.minusMonths(duration);
@@ -51,7 +49,7 @@ public class YahooServiceImpl implements IYahooService {
 
         Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
         if (response.getStatus() != 200) {
-            return null;
+            return Optional.empty();
         }
 
         String json = response.readEntity(String.class);
@@ -62,24 +60,12 @@ public class YahooServiceImpl implements IYahooService {
                     new TypeReference<YahooResponse>() {
                     });
             if (yahooResponse.getQuery().getResults() == null)
-                return null;
-            getQuote(code).ifPresent(quote -> {
-                Float close = quote.getAsk() != null ? quote.getAsk() : quote.getLastTradePriceOnly();
-                HistoricQuote historicQuote = new HistoricQuote();
-                historicQuote.setAdj_Close(close);
-                historicQuote.setClose(close);
-                historicQuote.setDate(new Date());
-                historicQuote.setHigh(quote.getDaysHigh());
-                historicQuote.setLow(quote.getDaysLow());
-                historicQuote.setOpen(quote.getOpen());
-                historicQuote.setVolume(quote.getVolume());
-                yahooResponse.getQuery().getResults().getQuote().add(0, historicQuote);
-            });
-            return yahooResponse;
+                return Optional.empty();
+            return Optional.of(yahooResponse);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return Optional.empty();
     }
 
     public Optional<Quote> getQuote(String code) {

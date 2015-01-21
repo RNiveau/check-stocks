@@ -7,6 +7,8 @@ import java.math.BigDecimal;
  */
 public class RuleStock {
 
+    private String name;
+
     private String code;
 
     private BigDecimal price;
@@ -35,5 +37,13 @@ public class RuleStock {
 
     public void setVariation(BigDecimal variation) {
         this.variation = variation;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

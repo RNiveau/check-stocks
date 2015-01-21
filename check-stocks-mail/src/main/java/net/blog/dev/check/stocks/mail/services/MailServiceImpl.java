@@ -40,13 +40,13 @@ public class MailServiceImpl implements IMailService {
         ).reduce((acc, item) -> acc + item).orElse("No result");
         return html;
     }
-    
+
     private String prepareHtmlStock(RuleStock stock) {
-        String html = "<p>" + stock.getCode();
+        String html = "<p>" + stock.getName() + " (" + stock.getCode() + ")";
         if (stock.getPrice() != null)
             html += ", " + stock.getPrice().setScale(3, RoundingMode.HALF_EVEN).floatValue();
         if (stock.getVariation() != null)
-            html += ", " + stock.getVariation().setScale(3, RoundingMode.HALF_EVEN).floatValue();
+            html += ", " + stock.getVariation().setScale(3, RoundingMode.HALF_EVEN).floatValue() + "%";
         html += "</p>";
         return html;
     }

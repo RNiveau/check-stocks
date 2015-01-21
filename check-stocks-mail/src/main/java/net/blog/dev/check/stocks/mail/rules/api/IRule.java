@@ -1,5 +1,6 @@
 package net.blog.dev.check.stocks.mail.rules.api;
 
+import net.blog.dev.check.stocks.domain.CompleteStock;
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 
@@ -13,6 +14,6 @@ public interface IRule {
 
     String getName();
 
-    Optional<RuleStock> isEligible(List<Stock> stockList, String code);
+    Optional<RuleStock> isEligible(List<Stock> stockList, CompleteStock lastStock);
 
 }

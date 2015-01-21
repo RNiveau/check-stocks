@@ -1,7 +1,7 @@
 package net.blog.dev.check.stocks.mail.rules;
 
+import net.blog.dev.check.stocks.domain.CompleteStock;
 import net.blog.dev.check.stocks.domain.Stock;
-import net.blog.dev.check.stocks.mail.rules.api.IRule;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.utils.CalculUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,7 +14,7 @@ import java.util.Optional;
 /**
  * Created by romainn on 05/01/2015.
  */
-public class RuleMobileAvg20 extends AbstractRule implements IRule {
+public class RuleMobileAvg20 extends AbstractRule {
 
     @Override
     public String getName() {
@@ -22,13 +22,13 @@ public class RuleMobileAvg20 extends AbstractRule implements IRule {
     }
 
     @Override
-    public Optional<RuleStock> isEligible(List<Stock> stockList, String code) {
-        Optional<RuleStock> eligible = super.isEligible(stockList, code);
+    public Optional<RuleStock> isEligible(List<Stock> stockList, CompleteStock lastStock) {
+        Optional<RuleStock> eligible = super.isEligible(stockList, lastStock);
         RuleStock ruleStock = null;
         if (eligible.isPresent()) {
             if (CollectionUtils.isNotEmpty(stockList)) {
                 stockList.sort(CalculUtils.reverseSort);
-                BigDecimal lastPrice = stockList.get(0).getClose();
+                BigDecimal lastPrice = lastStock.getClose();
 
                 List<BigDecimal> lastHigh = new ArrayList<>();
                 List<BigDecimal> lastLow = new ArrayList<>();
@@ -43,8 +43,10 @@ public class RuleMobileAvg20 extends AbstractRule implements IRule {
 
                 if (lastPrice.doubleValue() < avgHigh.doubleValue() && lastPrice.doubleValue() > avgLow.doubleValue()) {
                     ruleStock = new RuleStock();
-                    ruleStock.setCode(code);
+                    ruleStock.setCode(lastStock.getCode());
+                    ruleStock.setName(lastStock.getName());
                     ruleStock.setPrice(lastPrice);
+                    ruleStock.setVariation(lastStock.getLastVariation());
                 }
             }
         }
