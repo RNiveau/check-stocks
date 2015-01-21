@@ -20,7 +20,7 @@ public class CleanFloatDeserializer extends JsonDeserializer<Float> {
         ObjectCodec oc = jp.getCodec();
         JsonNode node = oc.readTree(jp);
         if (node.asText() != null)
-            return Float.parseFloat(node.asText().replaceAll("[^0-9.]*", ""));
+            return Float.parseFloat(node.asText().replaceAll("[^0-9.-]*", ""));
         return null;
     }
 }
