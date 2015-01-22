@@ -1,0 +1,43 @@
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <contextName>check-stock-mail</contextName>
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%date{yyyy/MM/dd HH:mm:ss.SSS,Europe/Paris} %5level [%thread] %logger{16} - %X{orderNumber} -
+                %message%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="debugfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${catalina.base:-/tmp}/logs/clientprofile-debug.log</File>
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>%date{yyyy/MM/dd HH:mm:ss.SSS,Europe/Paris} %${color:-highlight}(%-5level) [%thread] %logger{16} -
+                %X{orderNumber} - %message%n%throwable{8}
+            </pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>10</maxIndex>
+            <FileNamePattern>/app/logs/check-stock-mail-debug.log.%i</FileNamePattern>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>50MB</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <root level="WARN">
+        <appender-ref ref="debugfile"/>
+    </root>
+
+    <!-- Logs des requetes et reponses HTTP via le filter -->
+    <logger name="net.blog.dev" level="DEBUG" additivity="false">
+        <appender-ref ref="debugfile"/>
+    </logger>
+
+</configuration>

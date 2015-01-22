@@ -11,6 +11,8 @@ import net.blog.dev.services.api.IYahooService;
 import net.blog.dev.services.domain.historic.HistoricQuote;
 import net.blog.dev.services.domain.historic.YahooResponse;
 import net.blog.dev.services.domain.quote.Quote;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -20,6 +22,8 @@ import java.util.*;
  * Created by Xebia on 02/01/15.
  */
 public class ScanStockServiceImpl implements IScanStockService {
+
+    private static Logger logger = LoggerFactory.getLogger(IScanStockService.class);
 
     private IYahooService yahooService;
 
@@ -40,14 +44,15 @@ public class ScanStockServiceImpl implements IScanStockService {
     public List<RuleResult> scan() {
         final List<RuleResult> ruleResults = new ArrayList<>();
         getListCode().stream().forEach((code) -> {
+            logger.debug("Scan code {}", code);
             yahooService.getHistoric(code, 12).ifPresent(yahooResponse -> {
                 Optional<Quote> quote = addTodayInHistoric(code, yahooResponse);
-
                 List<Stock> stocks = stockMapper.mappeYahooToStock(yahooResponse);
                 CompleteStock completeStock = stockMapper.mappeQuoteToStock(quote.orElse(null));
                 rules.forEach(rule -> {
                     Optional<RuleStock> eligible = rule.isEligible(stocks, completeStock);
                     eligible.ifPresent(stock -> {
+                        logger.debug("{} is eligible", stock.getCode());
                         Optional<RuleResult> matchingRule = ruleResults.stream().filter(r -> r.getName().equals(rule.getName())).findFirst();
                         RuleResult ruleResult = matchingRule.orElseGet(() -> createRuleResult(ruleResults, rule));
                         ruleResult.addStock(stock);
