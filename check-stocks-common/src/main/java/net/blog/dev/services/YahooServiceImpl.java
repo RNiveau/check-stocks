@@ -5,6 +5,8 @@ import net.blog.dev.services.domain.historic.YahooResponse;
 import net.blog.dev.services.domain.quote.Quote;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -21,6 +23,8 @@ import java.util.Optional;
  * Created by Xebia on 13/08/2014.
  */
 public class YahooServiceImpl implements IYahooService {
+
+    private static Logger logger = LoggerFactory.getLogger(YahooServiceImpl.class);
 
     final private Client client = ClientBuilder.newClient();
 
@@ -49,6 +53,7 @@ public class YahooServiceImpl implements IYahooService {
 
         Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
         if (response.getStatus() != 200) {
+            logger.warn("Failed to get historic for {}", code);
             return Optional.empty();
         }
 
@@ -58,12 +63,15 @@ public class YahooServiceImpl implements IYahooService {
             YahooResponse yahooResponse = mapper.readValue(json,
                     new TypeReference<YahooResponse>() {
                     });
-            if (yahooResponse.getQuery().getResults() == null)
+            if (yahooResponse.getQuery().getResults() == null) {
+                logger.warn("Failed to get historic for {}", code);
                 return Optional.empty();
+            }
             return Optional.of(yahooResponse);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger.warn("Failed to get historic for {}", code);
         return Optional.empty();
     }
 
@@ -79,6 +87,7 @@ public class YahooServiceImpl implements IYahooService {
 
         Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
         if (response.getStatus() != 200) {
+            logger.warn("Failed to get historic for {}", code);
             return Optional.empty();
         }
 
@@ -88,8 +97,10 @@ public class YahooServiceImpl implements IYahooService {
             net.blog.dev.services.domain.quote.YahooResponse yahooResponse = mapper.readValue(json,
                     new TypeReference<net.blog.dev.services.domain.quote.YahooResponse>() {
                     });
-            if (yahooResponse.getQuery().getResults() == null)
+            if (yahooResponse.getQuery().getResults() == null) {
+                logger.warn("Failed to get quote for {}", code);
                 return Optional.empty();
+            }
             return Optional.ofNullable(yahooResponse.getQuery().getResults().getQuote());
         } catch (IOException e) {
             e.printStackTrace();

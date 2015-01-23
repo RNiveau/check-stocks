@@ -45,7 +45,8 @@ public class ScanStockServiceImpl implements IScanStockService {
         final List<RuleResult> ruleResults = new ArrayList<>();
         getListCode().stream().forEach((code) -> {
             logger.debug("Scan code {}", code);
-            yahooService.getHistoric(code, 12).ifPresent(yahooResponse -> {
+            Optional<YahooResponse> historic = yahooService.getHistoric(code, 12);
+            historic.ifPresent(yahooResponse -> {
                 Optional<Quote> quote = addTodayInHistoric(code, yahooResponse);
                 List<Stock> stocks = stockMapper.mappeYahooToStock(yahooResponse);
                 CompleteStock completeStock = stockMapper.mappeQuoteToStock(quote.orElse(null));
@@ -59,6 +60,8 @@ public class ScanStockServiceImpl implements IScanStockService {
                     });
                 });
             });
+            if (!historic.isPresent())
+                logger.warn("Failed to get historic for {}", code);
         });
         return ruleResults;
     }
@@ -77,6 +80,8 @@ public class ScanStockServiceImpl implements IScanStockService {
             historicQuote.setVolume(quote.getVolume());
             yahooResponse.getQuery().getResults().getQuote().add(0, historicQuote);
         });
+        if (!lastQuote.isPresent())
+            logger.warn("Failed to get quote for {}", code);
         return lastQuote;
     }
 
