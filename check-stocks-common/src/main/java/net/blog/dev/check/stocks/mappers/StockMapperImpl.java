@@ -21,20 +21,29 @@ public class StockMapperImpl implements IStockMapper {
     @Override
     public List<Stock> mappeYahooToStock(YahooResponse yahooResponse) {
         List<Stock> stocks = new ArrayList<>();
-        if (yahooResponse != null && yahooResponse.getQuery().getResults() != null && CollectionUtils.isNotEmpty(yahooResponse.getQuery().getResults().getQuote())) {
-           stocks = yahooResponse.getQuery().getResults().getQuote().stream().map(yahoo -> {
+        if (yahooResponse != null && yahooResponse.getQuery() != null && yahooResponse.getQuery().getResults() != null && CollectionUtils.isNotEmpty(yahooResponse.getQuery().getResults().getQuote())) {
+            stocks = yahooResponse.getQuery().getResults().getQuote().stream().map(yahoo -> {
                 Stock stock = new Stock();
-                stock.setClose(new BigDecimal(yahoo.getClose()));
-                stock.setDate(yahoo.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-                stock.setHigh(new BigDecimal(yahoo.getHigh()));
-                stock.setLow(new BigDecimal(yahoo.getLow()));
-                stock.setOpen(new BigDecimal(yahoo.getOpen()));
-                stock.setVolume(new BigDecimal(yahoo.getVolume()));
+                stock.setClose(getBigDecimal(yahoo.getClose()));
+                stock.setDate(yahoo.getDate() != null ? yahoo.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : LocalDate.MIN);
+                stock.setHigh(getBigDecimal(yahoo.getHigh()));
+                stock.setLow(getBigDecimal(yahoo.getLow()));
+                stock.setOpen(getBigDecimal(yahoo.getOpen()));
+                stock.setVolume(getBigDecimal(yahoo.getVolume()));
                 return stock;
             }).collect(Collectors.toList());
         }
         return stocks;
     }
+
+    private BigDecimal getBigDecimal(Float number) {
+        return new BigDecimal(number != null ? number : 0);
+    }
+
+    private BigDecimal getBigDecimal(Long number) {
+        return new BigDecimal(number != null ? number : 0);
+    }
+
 
     @Override
     public CompleteStock mappeQuoteToStock(Quote quote) {
@@ -43,13 +52,13 @@ public class StockMapperImpl implements IStockMapper {
             Float close = quote.getAsk() != null ? quote.getAsk() : quote.getLastTradePriceOnly();
             completeStock.setName(quote.getName());
             completeStock.setCode(quote.getSymbol());
-            completeStock.setLastVariation(new BigDecimal(quote.getChangeinPercent()));
-            completeStock.setClose(new BigDecimal(close));
+            completeStock.setLastVariation(getBigDecimal(quote.getChangeinPercent()));
+            completeStock.setClose(getBigDecimal(close));
             completeStock.setDate(LocalDate.now());
-            completeStock.setHigh(new BigDecimal(quote.getDaysHigh()));
-            completeStock.setLow(new BigDecimal(quote.getDaysLow()));
-            completeStock.setOpen(new BigDecimal(quote.getOpen()));
-            completeStock.setVolume(new BigDecimal(quote.getVolume()));
+            completeStock.setHigh(getBigDecimal(quote.getDaysHigh()));
+            completeStock.setLow(getBigDecimal(quote.getDaysLow()));
+            completeStock.setOpen(getBigDecimal(quote.getOpen()));
+            completeStock.setVolume(getBigDecimal(quote.getVolume()));
         }
         return completeStock;
     }
