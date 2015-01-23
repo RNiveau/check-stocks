@@ -5,6 +5,8 @@ import com.sendgrid.SendGridException;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleResult;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.mail.services.api.IMailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.RoundingMode;
 import java.util.List;
@@ -14,7 +16,10 @@ import java.util.List;
  */
 public class MailServiceImpl implements IMailService {
 
+    private static Logger logger = LoggerFactory.getLogger(MailServiceImpl.class);
+
     public void sendMail(List<RuleResult> resultList) {
+        logger.debug("Send mail with {} result", resultList.size());
         String text = prepareHtml(resultList);
         SendGrid sendgrid = new SendGrid(System.getenv("SENDGRID_USERNAME"), System.getenv("SENDGRID_PASSWORD"));
         SendGrid.Email email = new SendGrid.Email();
