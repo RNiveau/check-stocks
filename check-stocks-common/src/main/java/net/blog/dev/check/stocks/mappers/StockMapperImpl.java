@@ -47,8 +47,9 @@ public class StockMapperImpl implements IStockMapper {
 
     @Override
     public CompleteStock mappeQuoteToStock(Quote quote) {
-        CompleteStock completeStock = new CompleteStock();
+        CompleteStock completeStock = null;
         if (quote != null) {
+            completeStock = new CompleteStock();
             Float close = quote.getAsk() != null ? quote.getAsk() : quote.getLastTradePriceOnly();
             completeStock.setName(quote.getName());
             completeStock.setCode(quote.getSymbol());

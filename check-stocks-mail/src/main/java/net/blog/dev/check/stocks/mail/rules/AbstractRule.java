@@ -15,7 +15,7 @@ public abstract class AbstractRule implements IRule {
 
     @Override
     public Optional<RuleStock> isEligible(List<Stock> stockList, CompleteStock lastStock) {
-        if (stockList.size() == 0)
+        if (stockList.size() == 0 || lastStock == null)
             return Optional.empty();
         return lastStock.getVolume().intValue() > 100000 ? Optional.of(new RuleStock()) : Optional.empty();
     }
