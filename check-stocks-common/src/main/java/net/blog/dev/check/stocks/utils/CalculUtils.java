@@ -30,6 +30,22 @@ public class CalculUtils {
     };
 
     /**
+     * Add percentage to the value
+     *
+     * @param value
+     * @param percentage
+     * @return
+     */
+    static public Float addPercentage(Float value, Float percentage) {
+        logger.debug("addPercentage {}, {}", value, percentage);
+        if (value == null || percentage == null)
+            return 0f;
+        if (percentage >= 0)
+            return value * (1 + (percentage / 100));
+        return value * (1 + (percentage / 100));
+    }
+
+    /**
      * Formula: 100 - (100 / (1 + (AvgProfit / AvgLost)))
      * Avg calculate from mme
      * http://www.boursorama.com/q-comment-calculer-le-rsi/2467
