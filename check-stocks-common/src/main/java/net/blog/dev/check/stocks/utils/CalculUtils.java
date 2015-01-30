@@ -36,15 +36,15 @@ public class CalculUtils {
      * @param percentage
      * @return
      */
-    static public Float addPercentage(Float value, Float percentage) {
+    static public BigDecimal addPercentage(BigDecimal value, BigDecimal percentage) {
         logger.debug("addPercentage {}, {}", value, percentage);
         if (value == null || percentage == null)
-            return 0f;
-        if (percentage >= 0)
-            return value * (1 + (percentage / 100));
-        return value * (1 + (percentage / 100));
+            return BigDecimal.ZERO;
+        if (percentage.doubleValue() >= 0)
+            return value.multiply(BigDecimal.ONE.add(percentage.divide(new BigDecimal(100), RoundingMode.HALF_EVEN)));
+        return value.multiply(BigDecimal.ONE.add(percentage.divide(new BigDecimal(100), RoundingMode.HALF_EVEN)));
     }
-
+    
     /**
      * Formula: 100 - (100 / (1 + (AvgProfit / AvgLost)))
      * Avg calculate from mme
