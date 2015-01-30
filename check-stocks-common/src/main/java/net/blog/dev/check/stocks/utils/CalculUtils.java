@@ -41,10 +41,10 @@ public class CalculUtils {
         if (value == null || percentage == null)
             return BigDecimal.ZERO;
         if (percentage.doubleValue() >= 0)
-            return value.multiply(BigDecimal.ONE.add(percentage.divide(new BigDecimal(100), RoundingMode.HALF_EVEN)));
-        return value.multiply(BigDecimal.ONE.add(percentage.divide(new BigDecimal(100), RoundingMode.HALF_EVEN)));
+            return value.setScale(10, RoundingMode.HALF_EVEN).multiply(BigDecimal.ONE.add(percentage.setScale(10, RoundingMode.HALF_EVEN).divide(new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN), RoundingMode.HALF_EVEN)));
+        return value.setScale(10, RoundingMode.HALF_EVEN).multiply(BigDecimal.ONE.add(percentage.setScale(10, RoundingMode.HALF_EVEN).divide(new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN), RoundingMode.HALF_EVEN)));
     }
-    
+
     /**
      * Formula: 100 - (100 / (1 + (AvgProfit / AvgLost)))
      * Avg calculate from mme

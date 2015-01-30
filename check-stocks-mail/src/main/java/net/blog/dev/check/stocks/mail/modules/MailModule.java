@@ -4,6 +4,7 @@ import dagger.Module;
 import dagger.Provides;
 import net.blog.dev.check.stocks.mail.controllers.ScanStockController;
 import net.blog.dev.check.stocks.mail.rules.RuleMobileAvg20;
+import net.blog.dev.check.stocks.mail.rules.RuleMobileDynamicRsi;
 import net.blog.dev.check.stocks.mail.rules.api.IRule;
 import net.blog.dev.check.stocks.mail.services.MailServiceImpl;
 import net.blog.dev.check.stocks.mail.services.ScanStockServiceImpl;
@@ -55,9 +56,10 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public List<IRule> provideRules() {
+    public List<IRule> provideRules(@Named("stocks.dynamic.rsi.tolerance") Double dynamicRsiTolerance) {
         List<IRule> rules = new ArrayList<>();
         rules.add(new RuleMobileAvg20());
+        rules.add(new RuleMobileDynamicRsi(dynamicRsiTolerance));
         return rules;
     }
 }
