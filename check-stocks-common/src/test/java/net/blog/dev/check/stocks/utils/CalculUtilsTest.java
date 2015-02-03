@@ -37,7 +37,7 @@ public class CalculUtilsTest {
         stockList.add(createStock(LocalDate.of(2014, 9, 3), 11.480));
         Assert.assertEquals(new BigDecimal("11.064"), CalculUtils.exponentialAverage(stockList, 14).setScale(3, RoundingMode.HALF_EVEN));
         stockList.add(createStock(LocalDate.of(2014, 9, 4), 11.750));
-        Assert.assertEquals(new BigDecimal("11.155"), CalculUtils.exponentialAverage(stockList, 14).setScale(3, RoundingMode.HALF_EVEN));
+        Assert.assertEquals(new BigDecimal("11.156"), CalculUtils.exponentialAverage(stockList, 14).setScale(3, RoundingMode.HALF_EVEN));
         stockList.add(createStock(LocalDate.of(2014, 9, 5), 11.960));
         Assert.assertEquals(new BigDecimal("11.263"), CalculUtils.exponentialAverage(stockList, 14).setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("11.119"), CalculUtils.exponentialAverage(stockList, 20).setScale(3, RoundingMode.HALF_EVEN));
@@ -49,13 +49,13 @@ public class CalculUtilsTest {
         Assert.assertEquals(new BigDecimal("58.090"), dynamicRsi.getRsi().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("58.152"), dynamicRsi.getStdHigh().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("41.087"), dynamicRsi.getStdLow().setScale(3, RoundingMode.HALF_EVEN));
-        Assert.assertEquals(new BigDecimal("8.533"), dynamicRsi.getStd().setScale(3, RoundingMode.HALF_EVEN));
+        Assert.assertEquals(new BigDecimal("8.532"), dynamicRsi.getStd().setScale(3, RoundingMode.HALF_EVEN));
 
         dynamicRsi = CalculUtils.dynamicRsi(generateStocksCap20141216(), 14, 20);
         Assert.assertEquals(new BigDecimal("46.811"), dynamicRsi.getRsi().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("76.521"), dynamicRsi.getStdHigh().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("53.920"), dynamicRsi.getStdLow().setScale(3, RoundingMode.HALF_EVEN));
-        Assert.assertEquals(new BigDecimal("11.301"), dynamicRsi.getStd().setScale(3, RoundingMode.HALF_EVEN));
+        Assert.assertEquals(new BigDecimal("11.300"), dynamicRsi.getStd().setScale(3, RoundingMode.HALF_EVEN));
 
     }
 

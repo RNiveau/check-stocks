@@ -17,6 +17,8 @@ public class CalculUtils {
 
     private static Logger logger = LoggerFactory.getLogger(CalculUtils.class);
 
+    private static int BIGDECIMAL_SCALE = 10;
+
     public static Comparator<? super Stock> reverseSort = (s1, s2) -> {
         if (s1.getDate().equals(s2.getDate()))
             return 0;
@@ -28,6 +30,18 @@ public class CalculUtils {
             return 0;
         return s1.getDate().isBefore(s2.getDate()) ? -1 : 1;
     };
+
+    static public BigDecimal getCleanBigDecimal(BigDecimal bigDecimal) {
+        return bigDecimal.setScale(BIGDECIMAL_SCALE, RoundingMode.HALF_EVEN);
+    }
+
+    static public BigDecimal getCleanBigDecimal(int integer) {
+        return new BigDecimal(integer).setScale(BIGDECIMAL_SCALE, RoundingMode.HALF_EVEN);
+    }
+
+    static public BigDecimal getCleanBigDecimal(double d) {
+        return new BigDecimal(d).setScale(BIGDECIMAL_SCALE, RoundingMode.HALF_EVEN);
+    }
 
     /**
      * Add percentage to the value
@@ -41,8 +55,8 @@ public class CalculUtils {
         if (value == null || percentage == null)
             return BigDecimal.ZERO;
         if (percentage.doubleValue() >= 0)
-            return value.setScale(10, RoundingMode.HALF_EVEN).multiply(BigDecimal.ONE.add(percentage.setScale(10, RoundingMode.HALF_EVEN).divide(new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN), RoundingMode.HALF_EVEN)));
-        return value.setScale(10, RoundingMode.HALF_EVEN).multiply(BigDecimal.ONE.add(percentage.setScale(10, RoundingMode.HALF_EVEN).divide(new BigDecimal(100).setScale(10, RoundingMode.HALF_EVEN), RoundingMode.HALF_EVEN)));
+            return getCleanBigDecimal(value).multiply(BigDecimal.ONE.add(getCleanBigDecimal(percentage).divide(getCleanBigDecimal(100), RoundingMode.HALF_EVEN)));
+        return getCleanBigDecimal(value).multiply(BigDecimal.ONE.add(getCleanBigDecimal(percentage).divide(getCleanBigDecimal(100), RoundingMode.HALF_EVEN)));
     }
 
     /**
@@ -82,7 +96,7 @@ public class CalculUtils {
         BigDecimal avgLost = wilderAverageBigDecimal(losts, period);
         BigDecimal rs = avgProfit.divide(avgLost, RoundingMode.HALF_EVEN);
 
-        BigDecimal rsi = new BigDecimal(100).setScale(5).subtract(new BigDecimal(100).setScale(5).divide(new BigDecimal(1).setScale(5).add(rs), RoundingMode.HALF_EVEN));
+        BigDecimal rsi = getCleanBigDecimal(100).subtract(getCleanBigDecimal(100).divide(getCleanBigDecimal(1).add(rs), RoundingMode.HALF_EVEN));
         logger.debug("Rsi={}", rsi);
         return rsi;
     }
@@ -98,7 +112,7 @@ public class CalculUtils {
         Collections.reverse(limitedStock);
         OptionalDouble average = limitedStock.stream().mapToDouble(stock -> stock.doubleValue()).average();
         logger.debug("arithmeticAverageBigDecimal={}", average.getAsDouble());
-        return new BigDecimal(average.getAsDouble());
+        return getCleanBigDecimal(average.getAsDouble());
     }
 
     private static BigDecimal exponentialAverageBigDecimal(List<BigDecimal> stocks, int period) {
@@ -109,14 +123,14 @@ public class CalculUtils {
         for (int i = 0; i < period; i++)
             stocks.remove(0);
 
-        BigDecimal alpha = new BigDecimal(2).setScale(5).divide(new BigDecimal(period + 1).setScale(5), RoundingMode.HALF_EVEN);
+        BigDecimal alpha = getCleanBigDecimal(2).divide(getCleanBigDecimal(period + 1), RoundingMode.HALF_EVEN);
 
         // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
         // Z = value
         // alpha = 2 / (period + 1)
 
         for (BigDecimal bigDecimal : stocks) {
-            BigDecimal tmp = new BigDecimal(1).subtract(alpha);
+            BigDecimal tmp = BigDecimal.ONE.subtract(alpha);
             BigDecimal tmp2 = tmp.multiply(avg);
             avg = tmp2.add(alpha.multiply(bigDecimal));
         }
@@ -133,14 +147,14 @@ public class CalculUtils {
         for (int i = 0; i < period; i++)
             stocks.remove(0);
 
-        BigDecimal alpha = new BigDecimal(1).setScale(5).divide(new BigDecimal(period).setScale(5), RoundingMode.HALF_EVEN);
+        BigDecimal alpha = getCleanBigDecimal(1).divide(getCleanBigDecimal(period), RoundingMode.HALF_EVEN);
 
         // Mme(j) = (1-alpha) x MME(j-1) + alpha x Z
         // Z = value
         // alpha = 2 / (period + 1)
 
         for (BigDecimal bigDecimal : stocks) {
-            BigDecimal tmp = new BigDecimal(1).subtract(alpha);
+            BigDecimal tmp = BigDecimal.ONE.subtract(alpha);
             BigDecimal tmp2 = tmp.multiply(avg);
             avg = tmp2.add(alpha.multiply(bigDecimal));
         }
@@ -178,12 +192,12 @@ public class CalculUtils {
         BigDecimal average = arithmeticAverageBigDecimal(rsis, avgPeriod);
 
         // variance simple
-        double variance = rsis.stream().mapToDouble(rsi -> Math.pow(rsi.subtract(new BigDecimal(average.doubleValue())).doubleValue(), 2)).sum();
+        double variance = rsis.stream().mapToDouble(rsi -> Math.pow(rsi.subtract(getCleanBigDecimal(average.doubleValue())).doubleValue(), 2)).sum();
         logger.debug("Sum={}", variance);
         variance /= avgPeriod;
         logger.debug("Variance={}", variance);
 
-        BigDecimal std = new BigDecimal(Math.sqrt(variance));
+        BigDecimal std = getCleanBigDecimal(Math.sqrt(variance));
         logger.debug("Std={}", std);
 
         dynamicRsi.setStd(std);
