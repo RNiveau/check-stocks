@@ -94,6 +94,10 @@ public class CalculUtils {
         }
         BigDecimal avgProfit = wilderAverageBigDecimal(profits, period);
         BigDecimal avgLost = wilderAverageBigDecimal(losts, period);
+        if (avgLost.compareTo(BigDecimal.ZERO) == 0) {
+            logger.warn("AvgLost eq 0, fail, return ZERO");
+            return BigDecimal.ZERO;
+        }
         BigDecimal rs = avgProfit.divide(avgLost, RoundingMode.HALF_EVEN);
 
         BigDecimal rsi = getCleanBigDecimal(100).subtract(getCleanBigDecimal(100).divide(getCleanBigDecimal(1).add(rs), RoundingMode.HALF_EVEN));

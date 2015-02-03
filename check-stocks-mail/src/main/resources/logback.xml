@@ -22,4 +22,6 @@
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="net.blog.dev.check.stocks.utils.CalculUtils" level="INFO" additivity="false" />
+
 </configuration>
