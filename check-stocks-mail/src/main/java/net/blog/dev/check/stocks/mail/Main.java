@@ -15,12 +15,12 @@ public class Main {
 
 
     public static void main(String[] args)  {
-
         logger.info("Mail job starts");
-
         ObjectGraph objectGraph = ObjectGraph.create(MailModule.class);
         ScanStockController scanStockController = objectGraph.get(ScanStockController.class);
         scanStockController.execute();
+        logger.info("Mail job end");
+
     }
 
 

@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class ScanStockServiceImpl implements IScanStockService {
 
-    private static Logger logger = LoggerFactory.getLogger(IScanStockService.class);
+    private static Logger logger = LoggerFactory.getLogger(ScanStockServiceImpl.class);
 
     private IYahooService yahooService;
 
@@ -53,7 +53,7 @@ public class ScanStockServiceImpl implements IScanStockService {
                 rules.forEach(rule -> {
                     Optional<RuleStock> eligible = rule.isEligible(stocks, completeStock);
                     eligible.ifPresent(stock -> {
-                        logger.debug("{} is eligible", stock.getCode());
+                        logger.debug("{} is eligible to {}", stock.getCode(), rule.getName());
                         Optional<RuleResult> matchingRule = ruleResults.stream().filter(r -> r.getName().equals(rule.getName())).findFirst();
                         RuleResult ruleResult = matchingRule.orElseGet(() -> createRuleResult(ruleResults, rule));
                         ruleResult.addStock(stock);
