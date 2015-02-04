@@ -26,4 +26,8 @@
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="net.blog.dev.services.YahooServiceImpl" level="INFO" additivity="false" >
+        <appender-ref ref="console" />
+    </logger>
+
 </configuration>

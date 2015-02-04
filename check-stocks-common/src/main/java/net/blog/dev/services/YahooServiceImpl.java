@@ -58,6 +58,7 @@ public class YahooServiceImpl implements IYahooService {
         }
 
         String json = response.readEntity(String.class);
+        logger.debug("getHistoric {}", json);
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         try {
             YahooResponse yahooResponse = mapper.readValue(json,
@@ -92,6 +93,7 @@ public class YahooServiceImpl implements IYahooService {
         }
 
         String json = response.readEntity(String.class);
+        logger.debug("getQuote {}", json);
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         try {
             net.blog.dev.services.domain.quote.YahooResponse yahooResponse = mapper.readValue(json,
