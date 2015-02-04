@@ -10,6 +10,7 @@ import net.blog.dev.check.stocks.mail.rules.api.IRule;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import org.junit.Assert;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -65,6 +66,19 @@ public class Rules {
         lastStock.setClose(new BigDecimal(price));
     }
 
+    @Given("a scenario from file ([A-Z]+)$")
+    public void givenFromFile(String code) throws IOException, ClassNotFoundException {
+        InputStream file = new FileInputStream(this.getClass().getResource("/bin/" + code + "Historic").getPath());
+        InputStream buffer = new BufferedInputStream(file);
+        ObjectInput input = new ObjectInputStream(buffer);
+        stocks = (List<Stock>) input.readObject();
+        file = new FileInputStream(this.getClass().getResource("/bin/" + code + "Last").getPath());
+        buffer = new BufferedInputStream(file);
+        input = new ObjectInputStream(buffer);
+        lastStock = (CompleteStock) input.readObject();
+    }
+
+
     @When("I run eligibility ([A-Z0-9_-]+)$")
     public void when(String eligibility) {
         if ("MM20".equals(eligibility))
@@ -83,4 +97,5 @@ public class Rules {
     public void thenEligible() {
         Assert.assertTrue(result.isPresent());
     }
+
 }

@@ -1,5 +1,6 @@
 package net.blog.dev.check.stocks.domain;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -7,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Created by romainn on 28/08/2014.
  */
-public class Stock {
+public class Stock implements Serializable {
 
     private LocalDate date;
 
@@ -70,6 +71,6 @@ public class Stock {
     }
 
     public String toString() {
-        return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))+" "+close.doubleValue();
+        return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) + " " + close.doubleValue();
     }
 }
