@@ -100,3 +100,22 @@ rsi = 100 * 0,12916 / (0,12916 + 0,07385) = 63,6224
 rsi = 100 * (0,12916 / 14) / ((0,12916 / 14) + (0,07385 / 14)) = 63,6224
 
 63,602 => bon res
+
+
+code help
+                try
+                {
+                    OutputStream file = new FileOutputStream(completeStock.getCode()+"Historic");
+                    OutputStream buffer = new BufferedOutputStream(file);
+                    ObjectOutput output = new ObjectOutputStream(buffer);
+                    output.writeObject(stocks);
+                    output.close();
+                    file = new FileOutputStream(completeStock.getCode()+"Last");
+                    buffer = new BufferedOutputStream(file);
+                    output = new ObjectOutputStream(buffer);
+                    output.writeObject(completeStock);
+                    output.close();
+                }
+                catch(IOException ex){
+                    ex = ex;
+                }
