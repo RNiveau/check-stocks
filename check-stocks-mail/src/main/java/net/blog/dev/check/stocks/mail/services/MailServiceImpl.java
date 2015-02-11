@@ -3,12 +3,10 @@ package net.blog.dev.check.stocks.mail.services;
 import com.sendgrid.SendGrid;
 import com.sendgrid.SendGridException;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleResult;
-import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.mail.services.api.IMailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -40,19 +38,9 @@ public class MailServiceImpl implements IMailService {
         String html = resultList.stream().map(result ->
                 "<h3>" + result.getName() + "</h3>"
                         + result.getStocks().stream()
-                        .map(stock -> prepareHtmlStock(stock))
+                        .map(stock -> stock.toHtml())
                         .reduce((acc, item) -> acc + item).orElse("No result")
         ).reduce((acc, item) -> acc + item).orElse("No result");
-        return html;
-    }
-
-    private String prepareHtmlStock(RuleStock stock) {
-        String html = "<p>" + stock.getName() + " (" + stock.getCode() + ")";
-        if (stock.getPrice() != null)
-            html += ", " + stock.getPrice().setScale(3, RoundingMode.HALF_EVEN).floatValue();
-        if (stock.getVariation() != null)
-            html += ", " + stock.getVariation().setScale(3, RoundingMode.HALF_EVEN).floatValue() + "%";
-        html += "</p>";
         return html;
     }
 }

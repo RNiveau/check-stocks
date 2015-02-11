@@ -3,6 +3,7 @@ package net.blog.dev.check.stocks.mail.modules;
 import dagger.Module;
 import dagger.Provides;
 import net.blog.dev.check.stocks.mail.controllers.ScanStockController;
+import net.blog.dev.check.stocks.mail.rules.RuleInfoCac;
 import net.blog.dev.check.stocks.mail.rules.RuleMobileAvg20;
 import net.blog.dev.check.stocks.mail.rules.RuleMobileDynamicRsi;
 import net.blog.dev.check.stocks.mail.rules.api.IRule;
@@ -58,6 +59,7 @@ public class MailModule {
     @Singleton
     public List<IRule> provideRules(@Named("stocks.dynamic.rsi.tolerance") Double dynamicRsiTolerance) {
         List<IRule> rules = new ArrayList<>();
+        rules.add(new RuleInfoCac());
         rules.add(new RuleMobileAvg20());
         rules.add(new RuleMobileDynamicRsi(dynamicRsiTolerance));
         return rules;
