@@ -40,8 +40,8 @@ public class YahooServiceImpl implements IYahooService {
         LocalDate dateBefore = date.minusMonths(duration);
 
         String query = "select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22"
-                + code
-                + ".PA%22%20and%20startDate%20%3D%20%22"
+                + getcode(code)
+                + "%22%20and%20startDate%20%3D%20%22"
                 + dateBefore.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 + "%22%20and%20endDate%20%3D%20%22"
                 + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "%22";
@@ -76,10 +76,16 @@ public class YahooServiceImpl implements IYahooService {
         return Optional.empty();
     }
 
+    private String getcode(String code) {
+        return code.matches("^\\^.*") ? code.replaceAll("\\^", "%5e") : code + ".PA";
+    }
+
+    //cac40 = SELECT * FROM yahoo.finance.quotes WHERE symbol='^FCHI'
+
     public Optional<Quote> getQuote(String code) {
         if (code == null)
             return Optional.empty();
-        String query = "select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%20%22" + code + ".PA%22";
+        String query = "select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20%3D%20%22" + getcode(code) +"%22";
 
         WebTarget target = client.target("http://query.yahooapis.com").path("v1/public/yql")
                 .queryParam("q", query)
