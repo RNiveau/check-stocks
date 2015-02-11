@@ -44,6 +44,25 @@ public class CalculUtils {
     }
 
     /**
+     * Donne la difference en pourcentage entre f1 et f2<br>
+     * Renvoi toujours un taux positif
+     *
+     * @param f1
+     * @param f2
+     * @return
+     */
+    static public BigDecimal getPercentageBetweenTwoValues(BigDecimal f1, BigDecimal f2) {
+        logger.debug("getPercentageBetweenTwoValues {}, {}", f1, f2);
+        if (f1 == null || f2 == null)
+            return BigDecimal.ZERO;
+        BigDecimal f3 = getCleanBigDecimal(f2).divide(getCleanBigDecimal(f1), RoundingMode.HALF_EVEN);
+        // taux positif
+        if (f3.min(BigDecimal.ONE).equals(BigDecimal.ONE))
+            return f3.subtract(BigDecimal.ONE).multiply(getCleanBigDecimal(100));
+        return getCleanBigDecimal(100).subtract(f3.multiply(getCleanBigDecimal(100)));
+    }
+
+    /**
      * Add percentage to the value
      *
      * @param value
