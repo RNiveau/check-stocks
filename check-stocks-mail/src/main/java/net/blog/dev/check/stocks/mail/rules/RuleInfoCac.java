@@ -25,7 +25,7 @@ public class RuleInfoCac extends AbstractRule {
     @Override
     public Optional<RuleStock> isEligible(List<Stock> stockList, CompleteStock lastStock) {
         RuleStock ruleStock = null;
-        if (lastStock.getCode().equals("^FCHI")) {
+        if (lastStock != null && "^FCHI".equals(lastStock.getCode())) {
             if (CollectionUtils.isNotEmpty(stockList)) {
                 RuleMobileAvg20 ruleMobileAvg20 = new RuleMobileAvg20();
                 stockList.sort(CalculUtils.reverseSort);
