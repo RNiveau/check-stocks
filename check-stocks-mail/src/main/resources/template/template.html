@@ -1,38 +1,40 @@
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-<link href="style.css" />
+<script src="http://momentjs.com/downloads/moment.min.js"></script>
+<link rel="stylesheet"
+      href="https://raw.githubusercontent.com/RomainN/check-stocks/master/check-stocks-mail/src/main/resources/template/style.css"
+      type="text/css"/>
 <script type="text/javascript">
 
-var sl = {
-    version: '0.0.0',
-    series: {},
-    svg: {},
-    example: {}
-};
+var series = {};
 
-var ohlc = function () {
+var candleStick = function (bindingId, data) {
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
-            width = 660 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+            width = 100 - margin.left - margin.right,
+            height = 70 - margin.top - margin.bottom;
 
     var xScale = d3.time.scale(),
             yScale = d3.scale.linear();
 
     var xAxis = d3.svg.axis()
             .scale(xScale)
-            .orient('bottom')
-            .ticks(5);
+            .orient('bottom');
 
     var yAxis = d3.svg.axis()
             .scale(yScale)
-            .orient('left');
+            .orient('left')
+            .tickValues([d3.min(data, function (d) {
+                return d.low;
+            }), d3.max(data, function (d) {
+                return d.high;
+            })]);
 
-    var series = sl.series.ohlc()
+    var serie = series.candleStick()
             .xScale(xScale)
             .yScale(yScale);
 
     // Create svg element
-    var svg = d3.select('#chart').classed('chart', true).append('svg')
+    var svg = d3.select(bindingId).classed('chart', true).append('svg')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom);
 
@@ -48,27 +50,11 @@ var ohlc = function () {
             .attr({ width: width, height: height });
     plotArea.attr('clip-path', 'url(#plotAreaClip)');
 
-    // Set scale domains
-
-    var data = [
-                {
-                    date: new Date(2015,02,10),
-                    open: 10,
-                    high: 11,
-                    low: 9,
-                    close: 11
-                }
-            ]
-            ;
-
     var maxDate = d3.max(data, function (d) {
         return d.date;
     });
 
-    xScale.domain([
-        new Date(maxDate.getTime() - (8.64e7 * 31.5)),
-        new Date(maxDate.getTime() + 8.64e7)
-    ]);
+    xScale.domain([moment().subtract(1, 'days').toDate(), moment().toDate()]);
 
     yScale.domain(
             [
@@ -85,31 +71,25 @@ var ohlc = function () {
     xScale.range([0, width]);
     yScale.range([height, 0]);
 
-    // Draw axes
-    g.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + height + ')')
-            .call(xAxis);
-
     g.append('g')
             .attr('class', 'y axis')
             .call(yAxis);
 
-    // Draw series.
+    // Draw serie.
     plotArea.append('g')
-            .attr('class', 'series')
+            .attr('class', 'serie')
             .datum(data)
-            .call(series);
+            .call(serie);
 };
 
-sl.series.ohlc = function () {
+series.candleStick = function () {
 
     var xScale = d3.time.scale(),
             yScale = d3.scale.linear();
 
     var rectangleWidth = 5;
 
-    var isUpDay = function(d) {
+    var isUpDay = function (d) {
         return d.close > d.open;
     };
     var isDownDay = function (d) {
@@ -223,7 +203,33 @@ sl.series.ohlc = function () {
     return candlestick;
 
 };
+window.onload = toto;
+
+function toto() {
+    candleStick("#chart", [
+        {
+            date: new Date(2015, 1, 19),
+            open: 10,
+            high: 11,
+            low: 9,
+            close: 11
+        }
+    ]
+    );
+    candleStick("#chart2", [
+        {
+            date: new Date(2015, 1, 19),
+            open: 10,
+            high: 10.5,
+            low: 9,
+            close: 9.7
+        }
+    ]
+    );
+}
+;
 </script>
 <body>
 <div id="chart"></div>
+<div id="chart2"></div>
 </body>
