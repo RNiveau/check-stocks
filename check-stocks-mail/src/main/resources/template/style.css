@@ -24,27 +24,6 @@ html * {
     stroke-width: 1;
 }
 
-.chart .ohlc-series path {
-    vector-effect: non-scaling-stroke;
-    stroke-width: 1.5;
-}
-
-.chart .ohlc-series .up-days {
-    stroke: green;
-}
-
-.chart .ohlc-series .down-days {
-    stroke: red;
-}
-
-.chart .ohlc-series .bar.up-day {
-    stroke: green;
-}
-
-.chart .ohlc-series .bar.down-day {
-    stroke: red;
-}
-
 .chart .candlestick-series .bar path {
     stroke: black;
 }
