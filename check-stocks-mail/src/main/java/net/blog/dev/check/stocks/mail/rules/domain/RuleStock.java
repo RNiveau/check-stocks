@@ -16,6 +16,8 @@ public class RuleStock {
 
     private BigDecimal variation;
 
+    private Stock lastStock;
+
     public String getCode() {
         return code;
     }
@@ -56,5 +58,13 @@ public class RuleStock {
             html += ", " + this.getVariation().setScale(3, RoundingMode.HALF_EVEN).floatValue() + "%";
         html += "</p>";
         return html;
+    }
+
+    public Stock getLastStock() {
+        return lastStock;
+    }
+
+    public void setLastStock(Stock lastStock) {
+        this.lastStock = lastStock;
     }
 }

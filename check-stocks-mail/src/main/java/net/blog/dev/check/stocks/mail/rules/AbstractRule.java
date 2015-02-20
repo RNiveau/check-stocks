@@ -20,4 +20,13 @@ public abstract class AbstractRule implements IRule {
         return lastStock.getVolume().intValue() > 100000 ? Optional.of(new RuleStock()) : Optional.empty();
     }
 
+    protected void setLastStock(RuleStock ruleStock, Stock stock) {
+        net.blog.dev.check.stocks.mail.rules.domain.Stock lastStock = new net.blog.dev.check.stocks.mail.rules.domain.Stock();
+        lastStock.setClose(stock.getClose());
+        lastStock.setDate(stock.getDate());
+        lastStock.setHigh(stock.getHigh());
+        lastStock.setLow(stock.getLow());
+        lastStock.setOpen(stock.getOpen());
+        ruleStock.setLastStock(lastStock);
+    }
 }

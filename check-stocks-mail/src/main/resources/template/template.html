@@ -1,3 +1,5 @@
+<html>
+<head>
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="http://momentjs.com/downloads/moment.min.js"></script>
 <link rel="stylesheet"
@@ -5,231 +7,218 @@
       type="text/css"/>
 <script type="text/javascript">
 
-var series = {};
+    var series = {};
 
-var candleStick = function (bindingId, data) {
+    var candleStick = function (bindingId, data) {
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
-            width = 100 - margin.left - margin.right,
-            height = 70 - margin.top - margin.bottom;
+        var margin = {top: 20, right: 0, bottom: 5, left: 50},
+                width = 100 - margin.left - margin.right,
+                height = 50 - margin.top - margin.bottom;
 
-    var xScale = d3.time.scale(),
-            yScale = d3.scale.linear();
+        var xScale = d3.time.scale(),
+                yScale = d3.scale.linear();
 
-    var xAxis = d3.svg.axis()
-            .scale(xScale)
-            .orient('bottom');
+        var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient('bottom');
 
-    var yAxis = d3.svg.axis()
-            .scale(yScale)
-            .orient('left')
-            .tickValues([d3.min(data, function (d) {
-                return d.low;
-            }), d3.max(data, function (d) {
-                return d.high;
-            })]);
-
-    var serie = series.candleStick()
-            .xScale(xScale)
-            .yScale(yScale);
-
-    // Create svg element
-    var svg = d3.select(bindingId).classed('chart', true).append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom);
-
-    // Ceate chart
-    var g = svg.append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-    // Create plot area
-    var plotArea = g.append('g');
-    plotArea.append('clipPath')
-            .attr('id', 'plotAreaClip')
-            .append('rect')
-            .attr({ width: width, height: height });
-    plotArea.attr('clip-path', 'url(#plotAreaClip)');
-
-    var maxDate = d3.max(data, function (d) {
-        return d.date;
-    });
-
-    xScale.domain([moment().subtract(1, 'days').toDate(), moment().toDate()]);
-
-    yScale.domain(
-            [
-                d3.min(data, function (d) {
+        var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient('left')
+                .tickValues([d3.min(data, function (d) {
                     return d.low;
-                }),
-                d3.max(data, function (d) {
+                }), d3.max(data, function (d) {
                     return d.high;
+                })]);
+
+        var serie = series.candleStick()
+                .xScale(xScale)
+                .yScale(yScale);
+
+        // Create svg element
+        var svg = d3.select(bindingId).classed('chart', true).append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom);
+
+        // Ceate chart
+        var g = svg.append('g')
+                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        // Create plot area
+        var plotArea = g.append('g');
+        plotArea.append('clipPath')
+                .attr('id', 'plotAreaClip')
+                .append('rect')
+                .attr({ width: width, height: height });
+        plotArea.attr('clip-path', 'url(#plotAreaClip)');
+
+        var maxDate = d3.max(data, function (d) {
+            return d.date;
+        });
+
+        xScale.domain([moment().subtract(1, 'days').toDate(), moment().toDate()]);
+
+        yScale.domain(
+                [
+                    d3.min(data, function (d) {
+                        return d.low;
+                    }),
+                    d3.max(data, function (d) {
+                        return d.high;
+                    })
+                ]
+        ).nice();
+
+        // Set scale ranges
+        xScale.range([0, width]);
+        yScale.range([height, 0]);
+
+        g.append('g')
+                .attr('class', 'y axis')
+                .call(yAxis);
+
+        // Draw serie.
+        plotArea.append('g')
+                .attr('class', 'serie')
+                .datum(data)
+                .call(serie);
+    };
+
+    series.candleStick = function () {
+
+        var xScale = d3.time.scale(),
+                yScale = d3.scale.linear();
+
+        var rectangleWidth = 5;
+
+        var isUpDay = function (d) {
+            return d.close > d.open;
+        };
+        var isDownDay = function (d) {
+            return !isUpDay(d);
+        };
+
+        var line = d3.svg.line()
+                .x(function (d) {
+                    return d.x;
                 })
-            ]
-    ).nice();
+                .y(function (d) {
+                    return d.y;
+                });
 
-    // Set scale ranges
-    xScale.range([0, width]);
-    yScale.range([height, 0]);
+        var highLowLines = function (bars) {
 
-    g.append('g')
-            .attr('class', 'y axis')
-            .call(yAxis);
-
-    // Draw serie.
-    plotArea.append('g')
-            .attr('class', 'serie')
-            .datum(data)
-            .call(serie);
-};
-
-series.candleStick = function () {
-
-    var xScale = d3.time.scale(),
-            yScale = d3.scale.linear();
-
-    var rectangleWidth = 5;
-
-    var isUpDay = function (d) {
-        return d.close > d.open;
-    };
-    var isDownDay = function (d) {
-        return !isUpDay(d);
-    };
-
-    var line = d3.svg.line()
-            .x(function (d) {
-                return d.x;
-            })
-            .y(function (d) {
-                return d.y;
+            var paths = bars.selectAll('.high-low-line').data(function (d) {
+                return [d];
             });
 
-    var highLowLines = function (bars) {
+            paths.enter().append('path');
 
-        var paths = bars.selectAll('.high-low-line').data(function (d) {
-            return [d];
-        });
-
-        paths.enter().append('path');
-
-        paths.classed('high-low-line', true)
-                .attr('d', function (d) {
-                    return line([
-                        { x: xScale(d.date), y: yScale(d.high) },
-                        { x: xScale(d.date), y: yScale(d.low) }
-                    ]);
-                });
-    };
-
-    var rectangles = function (bars) {
-        var rect;
-
-        rect = bars.selectAll('rect').data(function (d) {
-            return [d];
-        });
-
-        rect.enter().append('rect');
-
-        rect.attr('x', function (d) {
-            return xScale(d.date) - rectangleWidth;
-        })
-                .attr('y', function (d) {
-                    return isUpDay(d) ? yScale(d.close) : yScale(d.open);
-                })
-                .attr('width', rectangleWidth * 2)
-                .attr('height', function (d) {
-                    return isUpDay(d) ?
-                            yScale(d.open) - yScale(d.close) :
-                            yScale(d.close) - yScale(d.open);
-                });
-    };
-
-    var candlestick = function (selection) {
-        var series, bars;
-
-        selection.each(function (data) {
-            series = d3.select(this).selectAll('.candlestick-series').data([data]);
-
-            series.enter().append('g')
-                    .classed('candlestick-series', true);
-
-            bars = series.selectAll('.bar')
-                    .data(data, function (d) {
-                        return d.date;
+            paths.classed('high-low-line', true)
+                    .attr('d', function (d) {
+                        return line([
+                            { x: xScale(d.date), y: yScale(d.high) },
+                            { x: xScale(d.date), y: yScale(d.low) }
+                        ]);
                     });
+        };
 
-            bars.enter()
-                    .append('g')
-                    .classed('bar', true);
+        var rectangles = function (bars) {
+            var rect;
 
-            bars.classed({
-                'up-day': isUpDay,
-                'down-day': isDownDay
+            rect = bars.selectAll('rect').data(function (d) {
+                return [d];
             });
 
-            highLowLines(bars);
-            rectangles(bars);
+            rect.enter().append('rect');
 
-            bars.exit().remove();
+            rect.attr('x', function (d) {
+                return xScale(d.date) - rectangleWidth;
+            })
+                    .attr('y', function (d) {
+                        return isUpDay(d) ? yScale(d.close) : yScale(d.open);
+                    })
+                    .attr('width', rectangleWidth * 2)
+                    .attr('height', function (d) {
+                        return isUpDay(d) ?
+                                yScale(d.open) - yScale(d.close) :
+                                yScale(d.close) - yScale(d.open);
+                    });
+        };
+
+        var candlestick = function (selection) {
+            var series, bars;
+
+            selection.each(function (data) {
+                series = d3.select(this).selectAll('.candlestick-series').data([data]);
+
+                series.enter().append('g')
+                        .classed('candlestick-series', true);
+
+                bars = series.selectAll('.bar')
+                        .data(data, function (d) {
+                            return d.date;
+                        });
+
+                bars.enter()
+                        .append('g')
+                        .classed('bar', true);
+
+                bars.classed({
+                    'up-day': isUpDay,
+                    'down-day': isDownDay
+                });
+
+                highLowLines(bars);
+                rectangles(bars);
+
+                bars.exit().remove();
 
 
-        });
-    };
+            });
+        };
 
-    candlestick.xScale = function (value) {
-        if (!arguments.length) {
-            return xScale;
-        }
-        xScale = value;
+        candlestick.xScale = function (value) {
+            if (!arguments.length) {
+                return xScale;
+            }
+            xScale = value;
+            return candlestick;
+        };
+
+        candlestick.yScale = function (value) {
+            if (!arguments.length) {
+                return yScale;
+            }
+            yScale = value;
+            return candlestick;
+        };
+
+        candlestick.rectangleWidth = function (value) {
+            if (!arguments.length) {
+                return rectangleWidth;
+            }
+            rectangleWidth = value;
+            return candlestick;
+        };
+
         return candlestick;
+
     };
 
-    candlestick.yScale = function (value) {
-        if (!arguments.length) {
-            return yScale;
-        }
-        yScale = value;
-        return candlestick;
-    };
+var candles = [];
 
-    candlestick.rectangleWidth = function (value) {
-        if (!arguments.length) {
-            return rectangleWidth;
-        }
-        rectangleWidth = value;
-        return candlestick;
-    };
-
-    return candlestick;
-
-};
-window.onload = toto;
-
-function toto() {
-    candleStick("#chart", [
-        {
-            date: new Date(2015, 1, 19),
-            open: 10,
-            high: 11,
-            low: 9,
-            close: 11
-        }
-    ]
-    );
-    candleStick("#chart2", [
-        {
-            date: new Date(2015, 1, 19),
-            open: 10,
-            high: 10.5,
-            low: 9,
-            close: 9.7
-        }
-    ]
-    );
+window.onload = function () {
+    candles.forEach(function (candle) {
+        candleStick(candle.binding, candle.data);
+    });
 }
-;
+
 </script>
+</head>
 <body>
-<div id="chart"></div>
-<div id="chart2"></div>
+<div>
+    ###CONTENT###
+</div>
 </body>
+</html>

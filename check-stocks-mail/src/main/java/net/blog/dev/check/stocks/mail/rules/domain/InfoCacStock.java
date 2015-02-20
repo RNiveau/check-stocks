@@ -48,8 +48,10 @@ public class InfoCacStock extends RuleStock {
             html += ", eligible MM20";
         if (this.getDistanceWithAvg20() != null)
             html += ", distance MM20 = " + this.getDistanceWithAvg20().setScale(3, RoundingMode.HALF_EVEN).floatValue() + "%";
+        if (this.getLastStock() != null) {
+            html += "<script type='text/javascript' >candles.push({binding: '#test', data: ["+this.getLastStock().toJson()+"]});</script><span id='test'></span>";
+        }
         html += "</p>";
         return html;
     }
-
 }

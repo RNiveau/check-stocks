@@ -28,6 +28,7 @@ public class RuleInfoCac extends AbstractRule {
         if (lastStock != null && "^FCHI".equals(lastStock.getCode())) {
             if (CollectionUtils.isNotEmpty(stockList)) {
                 RuleMobileAvg20 ruleMobileAvg20 = new RuleMobileAvg20();
+
                 stockList.sort(CalculUtils.reverseSort);
                 List<BigDecimal> lastPrice = new ArrayList<>();
 
@@ -45,6 +46,7 @@ public class RuleInfoCac extends AbstractRule {
                 ((InfoCacStock) ruleStock).setAvg20(avg);
                 ((InfoCacStock)ruleStock).setDistanceWithAvg20(CalculUtils.getPercentageBetweenTwoValues(lastStock.getClose(), avg));
                 ((InfoCacStock) ruleStock).setEligibleMA20(ruleMobileAvg20.isEligible(stockList, lastStock).isPresent());
+                setLastStock(ruleStock, lastStock);
             }
         }
         return Optional.ofNullable(ruleStock);
