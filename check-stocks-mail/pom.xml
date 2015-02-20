@@ -18,18 +18,21 @@
     <properties>
         <dagger.version>1.2.2</dagger.version>
         <sendgrid.version>2.1.0</sendgrid.version>
+        <cucumber.version>1.2.0</cucumber.version>
+        <commons-io.version>2.4</commons-io.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.sendgrid</groupId>
-            <artifactId>sendgrid-java</artifactId>
-            <version>${sendgrid.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.blog.dev</groupId>
             <artifactId>check-stock-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>${sendgrid.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.dagger</groupId>
@@ -43,14 +46,23 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+
+        <!-- Test -->
+        <dependency>
             <groupId>info.cukes</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>1.2.0</version>
+            <version>${cucumber.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>info.cukes</groupId>
             <artifactId>cucumber-junit</artifactId>
-            <version>1.2.0</version>
+            <version>${cucumber.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
