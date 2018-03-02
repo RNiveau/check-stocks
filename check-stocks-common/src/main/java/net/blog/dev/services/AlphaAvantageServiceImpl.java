@@ -30,7 +30,7 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
 
         WebTarget target = client.target("https://www.alphavantage.co").path("query")
                 .queryParam("function", "TIME_SERIES_DAILY")
-                .queryParam("symbol", code+"PA")
+                .queryParam("symbol", code+".PA")
                 .queryParam("apikey", "Q9SRZZ9SLVV8RW2H");
 
         Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
@@ -40,14 +40,15 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
         }
 
         String json = response.readEntity(String.class);
-        logger.debug("getHistoric {}", json);
 
         AlphaAvantageWrapper alphaAvantageWrapper = null;
         try {
             alphaAvantageWrapper = mapper.readValue(json, AlphaAvantageWrapper.class);
         } catch (IOException e) {
             logger.warn(e.getMessage());
+            logger.debug("getHistoric {}", json);
+            return Optional.empty();
         }
-        return Optional.of(alphaAvantageWrapper.getQuotes());
+        return Optional.of(alphaAvantageWrapper);
     }
 }

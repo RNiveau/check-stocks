@@ -1,6 +1,6 @@
 package net.blog.dev.services.beans;
 
-import net.blog.dev.gestion.stocks.back.json.CleanFloatDeserializer;
+import net.blog.dev.services.jackson.deserializer.CleanFloatDeserializer;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;

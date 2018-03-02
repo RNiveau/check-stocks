@@ -21,15 +21,15 @@ public class StockMapperImpl implements IStockMapper {
     @Override
     public List<Stock> mappeAlphaToStock(AlphaAvantageWrapper response) {
         List<Stock> stocks = new ArrayList<>();
-        if (response != null && response.getQuery() != null && response.getQuery().getResults() != null && CollectionUtils.isNotEmpty(response.getQuery().getResults().getQuote())) {
-            stocks = response.getQuery().getResults().getQuote().stream().map(yahoo -> {
+        if (response != null && response.getQuotes() != null) {
+            stocks = response.getQuotes().stream().map(quote -> {
                 Stock stock = new Stock();
-                stock.setClose(getBigDecimal(yahoo.getClose()));
-                stock.setDate(yahoo.getDate() != null ? yahoo.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : LocalDate.MIN);
-                stock.setHigh(getBigDecimal(yahoo.getHigh()));
-                stock.setLow(getBigDecimal(yahoo.getLow()));
-                stock.setOpen(getBigDecimal(yahoo.getOpen()));
-                stock.setVolume(getBigDecimal(yahoo.getVolume()));
+                stock.setClose(getBigDecimal(quote.getClose()));
+                stock.setDate(quote.getDate() != null ? quote.getDate() : LocalDate.MIN);
+                stock.setHigh(getBigDecimal(quote.getHigh()));
+                stock.setLow(getBigDecimal(quote.getLow()));
+                stock.setOpen(getBigDecimal(quote.getOpen()));
+                stock.setVolume(getBigDecimal(quote.getVolume()));
                 return stock;
             }).collect(Collectors.toList());
         }

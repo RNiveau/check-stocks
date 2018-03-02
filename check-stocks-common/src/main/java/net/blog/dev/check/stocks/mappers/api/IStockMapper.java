@@ -16,5 +16,4 @@ public interface IStockMapper {
 
     CompleteStock mappeQuoteToStock(Quote quote);
 
-
 }

@@ -7,6 +7,7 @@ import net.blog.dev.check.stocks.mail.rules.domain.RuleResult;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
+import net.blog.dev.check.stocks.utils.CalculUtils;
 import net.blog.dev.services.AlphaAvantageServiceImpl;
 import net.blog.dev.services.api.IAlphaAvantageService;
 import net.blog.dev.services.beans.AlphaAvantage;
@@ -45,10 +46,25 @@ public class ScanStockServiceImpl implements IScanStockService {
         final List<RuleResult> ruleResults = new ArrayList<>();
         getListCode().stream().forEach((code) -> {
             logger.debug("Scan code {}", code);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+            }
             Optional<AlphaAvantageWrapper> historic = stockService.getHistoric(code);
             historic.ifPresent(response -> {
                 List<Stock> stocks = stockMapper.mappeAlphaToStock(response);
-                CompleteStock completeStock = stockMapper.mappeQuoteToStock(quote.orElse(null));
+                Stock lastQuote = stocks.get(0);
+                CompleteStock completeStock = new CompleteStock();
+                completeStock.setCode(code);
+                completeStock.setLastVariation(CalculUtils.getPercentageBetweenTwoValues(lastQuote.getClose(), stocks.get(1).getClose()));
+                completeStock.setName("");
+                completeStock.setClose(lastQuote.getClose());
+                completeStock.setHigh(lastQuote.getHigh());
+                completeStock.setDate(lastQuote.getDate());
+                completeStock.setLow(lastQuote.getLow());
+                completeStock.setOpen(lastQuote.getOpen());
+                completeStock.setVolume(lastQuote.getVolume());
                 rules.forEach(rule -> {
                     Optional<RuleStock> eligible = rule.isEligible(stocks, completeStock);
                     eligible.ifPresent(stock -> {
