@@ -3,7 +3,7 @@ package net.blog.dev.check.stocks.mappers;
 import net.blog.dev.check.stocks.domain.CompleteStock;
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
-import net.blog.dev.services.domain.historic.YahooResponse;
+import net.blog.dev.services.beans.AlphaAvantageWrapper;
 import net.blog.dev.services.domain.quote.Quote;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -19,10 +19,10 @@ import java.util.stream.Collectors;
  */
 public class StockMapperImpl implements IStockMapper {
     @Override
-    public List<Stock> mappeYahooToStock(YahooResponse yahooResponse) {
+    public List<Stock> mappeAlphaToStock(AlphaAvantageWrapper response) {
         List<Stock> stocks = new ArrayList<>();
-        if (yahooResponse != null && yahooResponse.getQuery() != null && yahooResponse.getQuery().getResults() != null && CollectionUtils.isNotEmpty(yahooResponse.getQuery().getResults().getQuote())) {
-            stocks = yahooResponse.getQuery().getResults().getQuote().stream().map(yahoo -> {
+        if (response != null && response.getQuery() != null && response.getQuery().getResults() != null && CollectionUtils.isNotEmpty(response.getQuery().getResults().getQuote())) {
+            stocks = response.getQuery().getResults().getQuote().stream().map(yahoo -> {
                 Stock stock = new Stock();
                 stock.setClose(getBigDecimal(yahoo.getClose()));
                 stock.setDate(yahoo.getDate() != null ? yahoo.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : LocalDate.MIN);

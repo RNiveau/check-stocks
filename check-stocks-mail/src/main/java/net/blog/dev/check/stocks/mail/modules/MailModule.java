@@ -13,8 +13,6 @@ import net.blog.dev.check.stocks.mail.services.api.IMailService;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.StockMapperImpl;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
-import net.blog.dev.services.YahooServiceImpl;
-import net.blog.dev.services.api.IYahooService;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
