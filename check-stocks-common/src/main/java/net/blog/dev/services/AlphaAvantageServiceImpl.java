@@ -22,6 +22,13 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
 
     final private ObjectMapper mapper = new ObjectMapper();
 
+    final private String apiKey;
+
+    public AlphaAvantageServiceImpl(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+
     @Override
     public Optional<AlphaAvantageWrapper> getHistoric(String code) {
 
@@ -30,8 +37,8 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
 
         WebTarget target = client.target("https://www.alphavantage.co").path("query")
                 .queryParam("function", "TIME_SERIES_DAILY")
-                .queryParam("symbol", code+".PA")
-                .queryParam("apikey", "Q9SRZZ9SLVV8RW2H");
+                .queryParam("symbol", code.startsWith("^") ? code : code + ".PA")
+                .queryParam("apikey", apiKey);
 
         Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
         if (response.getStatus() != 200) {

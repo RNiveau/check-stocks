@@ -54,6 +54,8 @@ public class ScanStockServiceImpl implements IScanStockService {
             Optional<AlphaAvantageWrapper> historic = stockService.getHistoric(code);
             historic.ifPresent(response -> {
                 List<Stock> stocks = stockMapper.mappeAlphaToStock(response);
+                if (stocks.size() < 2)
+                    return;
                 Stock lastQuote = stocks.get(0);
                 CompleteStock completeStock = new CompleteStock();
                 completeStock.setCode(code);
