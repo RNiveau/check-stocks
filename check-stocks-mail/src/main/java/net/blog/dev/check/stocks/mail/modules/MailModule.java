@@ -13,8 +13,8 @@ import net.blog.dev.check.stocks.mail.services.api.IMailService;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.StockMapperImpl;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
-import net.blog.dev.services.YahooServiceImpl;
-import net.blog.dev.services.api.IYahooService;
+import net.blog.dev.services.AlphaAvantageServiceImpl;
+import net.blog.dev.services.api.IAlphaAvantageService;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -39,8 +39,8 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IYahooService provideYahooService() {
-        return new YahooServiceImpl();
+    public IAlphaAvantageService provideAlphaAvantageService() {
+        return new AlphaAvantageServiceImpl(System.getenv("ALPHAAVANTAGE_KEY"));
     }
 
     @Provides
@@ -51,8 +51,8 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService,  IStockMapper stockMapper) {
-        return new ScanStockServiceImpl(codes, rules, yahooService, stockMapper);
+    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, List<IRule> rules, IAlphaAvantageService alphaAvantageService,  IStockMapper stockMapper) {
+        return new ScanStockServiceImpl(codes, rules, alphaAvantageService, stockMapper);
     }
 
     @Provides

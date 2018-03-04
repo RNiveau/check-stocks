@@ -7,10 +7,11 @@ import net.blog.dev.check.stocks.mail.rules.domain.RuleResult;
 import net.blog.dev.check.stocks.mail.rules.domain.RuleStock;
 import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
-import net.blog.dev.services.api.IYahooService;
-import net.blog.dev.services.domain.historic.HistoricQuote;
-import net.blog.dev.services.domain.historic.YahooResponse;
-import net.blog.dev.services.domain.quote.Quote;
+import net.blog.dev.check.stocks.utils.CalculUtils;
+import net.blog.dev.services.AlphaAvantageServiceImpl;
+import net.blog.dev.services.api.IAlphaAvantageService;
+import net.blog.dev.services.beans.AlphaAvantage;
+import net.blog.dev.services.beans.AlphaAvantageWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class ScanStockServiceImpl implements IScanStockService {
 
     private static Logger logger = LoggerFactory.getLogger(ScanStockServiceImpl.class);
 
-    private IYahooService yahooService;
+    private IAlphaAvantageService stockService;
 
     private String codes;
 
@@ -34,8 +35,8 @@ public class ScanStockServiceImpl implements IScanStockService {
     private IStockMapper stockMapper;
 
     @Inject
-    public ScanStockServiceImpl(@Named("stocks.codes") String codes, List<IRule> rules, IYahooService yahooService, IStockMapper stockMapper) {
-        this.yahooService = yahooService;
+    public ScanStockServiceImpl(@Named("stocks.codes") String codes, List<IRule> rules, IAlphaAvantageService yahooService, IStockMapper stockMapper) {
+        this.stockService = yahooService;
         this.codes = codes;
         this.rules = rules;
         this.stockMapper = stockMapper;
@@ -45,11 +46,27 @@ public class ScanStockServiceImpl implements IScanStockService {
         final List<RuleResult> ruleResults = new ArrayList<>();
         getListCode().stream().forEach((code) -> {
             logger.debug("Scan code {}", code);
-            Optional<YahooResponse> historic = yahooService.getHistoric(code, 12);
-            historic.ifPresent(yahooResponse -> {
-                Optional<Quote> quote = addTodayInHistoric(code, yahooResponse);
-                List<Stock> stocks = stockMapper.mappeYahooToStock(yahooResponse);
-                CompleteStock completeStock = stockMapper.mappeQuoteToStock(quote.orElse(null));
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage());
+            }
+            Optional<AlphaAvantageWrapper> historic = stockService.getHistoric(code);
+            historic.ifPresent(response -> {
+                List<Stock> stocks = stockMapper.mappeAlphaToStock(response);
+                if (stocks.size() < 2)
+                    return;
+                Stock lastQuote = stocks.get(0);
+                CompleteStock completeStock = new CompleteStock();
+                completeStock.setCode(code);
+                completeStock.setLastVariation(CalculUtils.getPercentageBetweenTwoValues(lastQuote.getClose(), stocks.get(1).getClose()));
+                completeStock.setName("");
+                completeStock.setClose(lastQuote.getClose());
+                completeStock.setHigh(lastQuote.getHigh());
+                completeStock.setDate(lastQuote.getDate());
+                completeStock.setLow(lastQuote.getLow());
+                completeStock.setOpen(lastQuote.getOpen());
+                completeStock.setVolume(lastQuote.getVolume());
                 rules.forEach(rule -> {
                     Optional<RuleStock> eligible = rule.isEligible(stocks, completeStock);
                     eligible.ifPresent(stock -> {
@@ -64,25 +81,6 @@ public class ScanStockServiceImpl implements IScanStockService {
                 logger.warn("Failed to get historic for {}", code);
         });
         return ruleResults;
-    }
-
-    private Optional<Quote> addTodayInHistoric(String code, YahooResponse yahooResponse) {
-        Optional<Quote> lastQuote = yahooService.getQuote(code);
-        lastQuote.ifPresent(quote -> {
-            Float close = quote.getAsk() != null ? quote.getAsk() : quote.getLastTradePriceOnly();
-            HistoricQuote historicQuote = new HistoricQuote();
-            historicQuote.setAdj_Close(close);
-            historicQuote.setClose(close);
-            historicQuote.setDate(new Date());
-            historicQuote.setHigh(quote.getDaysHigh());
-            historicQuote.setLow(quote.getDaysLow());
-            historicQuote.setOpen(quote.getOpen());
-            historicQuote.setVolume(quote.getVolume());
-            yahooResponse.getQuery().getResults().getQuote().add(0, historicQuote);
-        });
-        if (!lastQuote.isPresent())
-            logger.warn("Failed to get quote for {}", code);
-        return lastQuote;
     }
 
     private RuleResult createRuleResult(List<RuleResult> ruleResults, IRule rule) {
