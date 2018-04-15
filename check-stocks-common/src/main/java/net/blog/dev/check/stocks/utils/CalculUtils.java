@@ -45,7 +45,7 @@ public class CalculUtils {
 
     /**
      * Donne la difference en pourcentage entre f1 et f2<br>
-     * Renvoi toujours un taux positif
+     * Renvoie toujours un taux positif
      *
      * @param f1
      * @param f2

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -59,7 +60,10 @@ public class ScanStockServiceImpl implements IScanStockService {
                 Stock lastQuote = stocks.get(0);
                 CompleteStock completeStock = new CompleteStock();
                 completeStock.setCode(code);
-                completeStock.setLastVariation(CalculUtils.getPercentageBetweenTwoValues(lastQuote.getClose(), stocks.get(1).getClose()));
+                BigDecimal percent = CalculUtils.getPercentageBetweenTwoValues(lastQuote.getClose(), stocks.get(1).getClose());
+                if (stocks.get(1).getClose().floatValue() > lastQuote.getClose().floatValue())
+                    percent = percent.multiply(new BigDecimal(-1));
+                completeStock.setLastVariation(percent);
                 completeStock.setName("");
                 completeStock.setClose(lastQuote.getClose());
                 completeStock.setHigh(lastQuote.getHigh());

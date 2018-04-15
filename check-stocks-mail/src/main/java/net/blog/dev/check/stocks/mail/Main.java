@@ -20,7 +20,6 @@ public class Main {
         ScanStockController scanStockController = objectGraph.get(ScanStockController.class);
         scanStockController.execute();
         logger.info("Mail job end");
-
     }
 
 
