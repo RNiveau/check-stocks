@@ -20,7 +20,6 @@ public class PropertiesModule {
         return "BTC,ETH";
     }
 
-
     @Provides
     @Named("stocks.dynamic.rsi.tolerance")
     public Double providesDynamicRsiTolerance() {
@@ -28,5 +27,14 @@ public class PropertiesModule {
         if (fromSystem == null)
             return 5d;
         return Double.parseDouble(fromSystem);
+    }
+
+    @Provides
+    @Named("stocks.rule.check.code")
+    public String providesCheckCode() {
+        String fromSystem = System.getenv("stocks.rule.check.code");
+        if (fromSystem == null)
+            return "";
+        return fromSystem;
     }
 }
