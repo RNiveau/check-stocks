@@ -1,6 +1,8 @@
 package net.blog.dev.services;
 
 import net.blog.dev.services.api.IAlphaAvantageService;
+import net.blog.dev.services.beans.AlphaAvantageCrypto;
+import net.blog.dev.services.beans.AlphaAvantageCryptoWrapper;
 import net.blog.dev.services.beans.AlphaAvantageWrapper;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -57,5 +59,37 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
             return Optional.empty();
         }
         return Optional.of(alphaAvantageWrapper);
+    }
+
+    @Override
+    public Optional<AlphaAvantageCryptoWrapper> getCryptoHistoric(String code) {
+
+        if (code == null)
+            return Optional.empty();
+
+        WebTarget target = client.target("https://www.alphavantage.co").path("query")
+                .queryParam("function", "DIGITAL_CURRENCY_DAILY")
+                .queryParam("symbol", code)
+                .queryParam("market", "EUR")
+                .queryParam("apikey", apiKey);
+
+        Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
+        if (response.getStatus() != 200) {
+            logger.warn("Failed to get historic for {}", code);
+            return Optional.empty();
+        }
+
+        String json = response.readEntity(String.class);
+
+        AlphaAvantageCryptoWrapper alphaAvantageWrapper = null;
+        try {
+            alphaAvantageWrapper = mapper.readValue(json, AlphaAvantageCryptoWrapper.class);
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+            logger.debug("getHistoric {}", json);
+            return Optional.empty();
+        }
+        return Optional.of(alphaAvantageWrapper);
+
     }
 }

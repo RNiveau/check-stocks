@@ -51,8 +51,8 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, List<IRule> rules, IAlphaAvantageService alphaAvantageService,  IStockMapper stockMapper) {
-        return new ScanStockServiceImpl(codes, rules, alphaAvantageService, stockMapper);
+    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, @Named("stocks.codesCrypto") String codesCrypto, List<IRule> rules, IAlphaAvantageService alphaAvantageService,  IStockMapper stockMapper) {
+        return new ScanStockServiceImpl(codes, codesCrypto, rules, alphaAvantageService, stockMapper);
     }
 
     @Provides

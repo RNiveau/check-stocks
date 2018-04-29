@@ -3,6 +3,7 @@ package net.blog.dev.check.stocks.mappers;
 import net.blog.dev.check.stocks.domain.CompleteStock;
 import net.blog.dev.check.stocks.domain.Stock;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
+import net.blog.dev.services.beans.AlphaAvantageCryptoWrapper;
 import net.blog.dev.services.beans.AlphaAvantageWrapper;
 import net.blog.dev.services.domain.quote.Quote;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,6 +21,24 @@ import java.util.stream.Collectors;
 public class StockMapperImpl implements IStockMapper {
     @Override
     public List<Stock> mappeAlphaToStock(AlphaAvantageWrapper response) {
+        List<Stock> stocks = new ArrayList<>();
+        if (response != null && response.getQuotes() != null) {
+            stocks = response.getQuotes().stream().map(quote -> {
+                Stock stock = new Stock();
+                stock.setClose(getBigDecimal(quote.getClose()));
+                stock.setDate(quote.getDate() != null ? quote.getDate() : LocalDate.MIN);
+                stock.setHigh(getBigDecimal(quote.getHigh()));
+                stock.setLow(getBigDecimal(quote.getLow()));
+                stock.setOpen(getBigDecimal(quote.getOpen()));
+                stock.setVolume(getBigDecimal(quote.getVolume()));
+                return stock;
+            }).collect(Collectors.toList());
+        }
+        return stocks;
+    }
+
+    @Override
+    public List<Stock> mappeAlphaToStock(AlphaAvantageCryptoWrapper response) {
         List<Stock> stocks = new ArrayList<>();
         if (response != null && response.getQuotes() != null) {
             stocks = response.getQuotes().stream().map(quote -> {
