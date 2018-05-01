@@ -1,8 +1,6 @@
 package net.blog.dev.services;
 
-import com.sun.tools.javac.util.ArrayUtils;
 import net.blog.dev.services.api.IAlphaAvantageService;
-import net.blog.dev.services.beans.AlphaAvantageCrypto;
 import net.blog.dev.services.beans.AlphaAvantageCryptoWrapper;
 import net.blog.dev.services.beans.AlphaAvantageWrapper;
 import org.codehaus.jackson.map.ObjectMapper;
