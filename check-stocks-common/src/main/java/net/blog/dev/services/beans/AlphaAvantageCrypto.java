@@ -30,7 +30,8 @@ public class AlphaAvantageCrypto implements Serializable {
     private Float close;
 
     @JsonProperty(value = "5. volume")
-    private Long volume;
+    @JsonDeserialize(using = CleanFloatDeserializer.class)
+    private Float volume;
 
     public Float getOpen() {
         return open;
@@ -64,11 +65,11 @@ public class AlphaAvantageCrypto implements Serializable {
         this.close = close;
     }
 
-    public Long getVolume() {
+    public Float getVolume() {
         return volume;
     }
 
-    public void setVolume(Long volume) {
+    public void setVolume(Float volume) {
         this.volume = volume;
     }
 
