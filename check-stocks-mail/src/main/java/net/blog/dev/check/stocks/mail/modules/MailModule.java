@@ -41,7 +41,7 @@ public class MailModule {
     @Provides
     @Singleton
     public IAlphaAvantageService provideAlphaAvantageService() {
-        return new AlphaAvantageServiceImpl(System.getenv("ALPHAAVANTAGE_KEY"));
+        return new AlphaAvantageServiceImpl(System.getenv("ALPHAAVANTAGE_KEY"), System.getenv("ALPHAAVANTAGE_KEY2"));
     }
 
     @Provides

@@ -1,5 +1,6 @@
 package net.blog.dev.services;
 
+import com.sun.tools.javac.util.ArrayUtils;
 import net.blog.dev.services.api.IAlphaAvantageService;
 import net.blog.dev.services.beans.AlphaAvantageCrypto;
 import net.blog.dev.services.beans.AlphaAvantageCryptoWrapper;
@@ -14,6 +15,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
@@ -24,10 +28,11 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
 
     final private ObjectMapper mapper = new ObjectMapper();
 
-    final private String apiKey;
+    final private List<String> apiKeys;
 
-    public AlphaAvantageServiceImpl(String apiKey) {
-        this.apiKey = apiKey;
+    public AlphaAvantageServiceImpl(String... apiKeys) {
+        this.apiKeys = new ArrayList<>();
+        this.apiKeys.addAll(Arrays.asList(apiKeys));
     }
 
 
@@ -39,26 +44,21 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
 
         WebTarget target = client.target("https://www.alphavantage.co").path("query")
                 .queryParam("function", "TIME_SERIES_DAILY")
-                .queryParam("symbol", code.startsWith("^") ? code : code + ".PA")
-                .queryParam("apikey", apiKey);
+                .queryParam("symbol", code.startsWith("^") ? code : code + ".PA");
 
-        Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
-        if (response.getStatus() != 200) {
-            logger.warn("Failed to get historic for {}", code);
-            return Optional.empty();
+        Optional<String> json = call(target, code, 0);
+        if (json.isPresent()) {
+            AlphaAvantageWrapper alphaAvantageWrapper;
+            try {
+                alphaAvantageWrapper = mapper.readValue(json.get(), AlphaAvantageWrapper.class);
+            } catch (IOException e) {
+                logger.warn(e.getMessage());
+                logger.debug("getHistoric {}", json);
+                return Optional.empty();
+            }
+            return Optional.of(alphaAvantageWrapper);
         }
-
-        String json = response.readEntity(String.class);
-
-        AlphaAvantageWrapper alphaAvantageWrapper = null;
-        try {
-            alphaAvantageWrapper = mapper.readValue(json, AlphaAvantageWrapper.class);
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-            logger.debug("getHistoric {}", json);
-            return Optional.empty();
-        }
-        return Optional.of(alphaAvantageWrapper);
+        return Optional.empty();
     }
 
     @Override
@@ -70,26 +70,49 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
         WebTarget target = client.target("https://www.alphavantage.co").path("query")
                 .queryParam("function", "DIGITAL_CURRENCY_DAILY")
                 .queryParam("symbol", code)
-                .queryParam("market", "EUR")
-                .queryParam("apikey", apiKey);
+                .queryParam("market", "EUR");
 
+        Optional<String> json = call(target, code, 0);
+        if (json.isPresent()) {
+            AlphaAvantageCryptoWrapper alphaAvantageWrapper;
+            try {
+                alphaAvantageWrapper = mapper.readValue(json.get(), AlphaAvantageCryptoWrapper.class);
+            } catch (IOException e) {
+                logger.warn(e.getMessage());
+                logger.debug("getHistoric {}", json);
+                return Optional.empty();
+            }
+            return Optional.of(alphaAvantageWrapper);
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> call(WebTarget webTarget, String code, int retry) {
+        WebTarget target = webTarget.queryParam("apikey", apiKeys.get(0));
         Response response = target.request(MediaType.APPLICATION_JSON_TYPE).get();
         if (response.getStatus() != 200) {
-            logger.warn("Failed to get historic for {}", code);
-            return Optional.empty();
+            return retryCall(code, retry, target);
         }
-
         String json = response.readEntity(String.class);
-
-        AlphaAvantageCryptoWrapper alphaAvantageWrapper = null;
-        try {
-            alphaAvantageWrapper = mapper.readValue(json, AlphaAvantageCryptoWrapper.class);
-        } catch (IOException e) {
-            logger.warn(e.getMessage());
-            logger.debug("getHistoric {}", json);
-            return Optional.empty();
+        if (json.contains("Invalid API call") || json.contains("Please consider optimizing your API call frequency")) {
+            return retryCall(code, retry, target);
         }
-        return Optional.of(alphaAvantageWrapper);
+        return Optional.of(json);
+    }
 
+    private Optional<String> retryCall(String code, int retry, WebTarget target) {
+        if (retry == 0) {
+            String apiKey = apiKeys.remove(0);
+            apiKeys.add(apiKey);
+            logger.debug("Apikey rotation");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                logger.info("Thread: {}", e.getMessage());
+            }
+            return call(target, code, 1);
+        }
+        logger.warn("Failed to get historic for {}", code);
+        return Optional.empty();
     }
 }
