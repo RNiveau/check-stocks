@@ -194,13 +194,15 @@ public class CalculUtils {
         return exponentialAverageBigDecimal(lists, period);
     }
 
-    public static DynamicRsi dynamicRsi(List<Stock> stocks, int rsiPeriod, int avgPeriod) {
+    public static Optional<DynamicRsi> dynamicRsi(List<Stock> stocks, int rsiPeriod, int avgPeriod) {
         stocks.sort(reverseSort);
 
         List<Stock> lastStocks = stocks.stream().limit(avgPeriod).collect(Collectors.toList());
         lastStocks.sort(sort);
 
         stocks.sort(sort);
+        if (stocks.size() - avgPeriod < 0)
+            return Optional.empty();
         final List<Stock> workingStocks = stocks.stream().limit(stocks.size() - avgPeriod).collect(Collectors.toList());
 
         List<BigDecimal> rsis = new ArrayList<>();
@@ -226,6 +228,6 @@ public class CalculUtils {
         dynamicRsi.setStd(std);
         dynamicRsi.setStdHigh(average.add(std));
         dynamicRsi.setStdLow(average.subtract(std));
-        return dynamicRsi;
+        return Optional.of(dynamicRsi);
     }
 }

@@ -50,7 +50,10 @@ public class RuleMobileDynamicRsi extends AbstractRule {
         if (eligible.isPresent()) {
             if (CollectionUtils.isNotEmpty(stockList)) {
 
-                DynamicRsi dynamicRsi = CalculUtils.dynamicRsi(stockList, 14, 20);
+                Optional<DynamicRsi> optional = CalculUtils.dynamicRsi(stockList, 14, 20);
+                if (!optional.isPresent())
+                    return Optional.empty();
+                DynamicRsi dynamicRsi = optional.get();
                 if (dynamicRsi != null) {
                     BigDecimal rsi = dynamicRsi.getRsi();
                     BigDecimal stdPlusTolerance = CalculUtils.addPercentage(dynamicRsi.getStdHigh(), getCleanBigDecimal(tolerance));

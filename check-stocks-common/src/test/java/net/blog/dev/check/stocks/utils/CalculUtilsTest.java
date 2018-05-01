@@ -45,13 +45,13 @@ public class CalculUtilsTest {
 
     @Test
     public void testDynamicRsi() {
-        DynamicRsi dynamicRsi = CalculUtils.dynamicRsi(generateStocksGle20141201(), 14, 20);
+        DynamicRsi dynamicRsi = CalculUtils.dynamicRsi(generateStocksGle20141201(), 14, 20).get();
         Assert.assertEquals(new BigDecimal("58.090"), dynamicRsi.getRsi().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("58.152"), dynamicRsi.getStdHigh().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("41.087"), dynamicRsi.getStdLow().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("8.532"), dynamicRsi.getStd().setScale(3, RoundingMode.HALF_EVEN));
 
-        dynamicRsi = CalculUtils.dynamicRsi(generateStocksCap20141216(), 14, 20);
+        dynamicRsi = CalculUtils.dynamicRsi(generateStocksCap20141216(), 14, 20).get();
         Assert.assertEquals(new BigDecimal("46.811"), dynamicRsi.getRsi().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("76.521"), dynamicRsi.getStdHigh().setScale(3, RoundingMode.HALF_EVEN));
         Assert.assertEquals(new BigDecimal("53.920"), dynamicRsi.getStdLow().setScale(3, RoundingMode.HALF_EVEN));
