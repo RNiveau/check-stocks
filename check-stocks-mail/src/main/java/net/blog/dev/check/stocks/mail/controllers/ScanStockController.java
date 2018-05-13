@@ -30,7 +30,10 @@ public class ScanStockController {
 
     public void execute() {
         int dayOfWeek = LocalDate.now().get(ChronoField.DAY_OF_WEEK);
-        if (dayOfWeek > 5) {
+        String skip_blockage = System.getenv("SKIP_BLOCKAGE");
+        if (skip_blockage == null)
+            skip_blockage = "false";
+        if (dayOfWeek > 5 && !Boolean.parseBoolean(skip_blockage)) {
             logger.info("DayOfWeek {} > 5, doesn't scan stock", dayOfWeek);
             return;
         }
