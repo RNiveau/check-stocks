@@ -54,6 +54,11 @@ public class AlphaAvantageServiceImpl implements IAlphaAvantageService {
                 logger.debug("getHistoric {}", json);
                 return Optional.empty();
             }
+            alphaAvantageWrapper.getQuotes().sort((q1, q2) -> {
+                if (q1.getDate().isBefore(q2.getDate()))
+                    return 1;
+                return q1.getDate().isAfter(q2.getDate()) ? -1 : 0;
+            });
             return Optional.of(alphaAvantageWrapper);
         }
         return Optional.empty();
