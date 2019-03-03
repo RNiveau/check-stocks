@@ -10,6 +10,7 @@ import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.check.stocks.utils.CalculUtils;
 import net.blog.dev.services.AlphaAvantageServiceImpl;
 import net.blog.dev.services.api.IAlphaAvantageService;
+import net.blog.dev.services.api.IBoursoramaService;
 import net.blog.dev.services.beans.AlphaAvantage;
 import net.blog.dev.services.beans.AlphaAvantageCryptoWrapper;
 import net.blog.dev.services.beans.AlphaAvantageWrapper;
@@ -28,7 +29,7 @@ public class ScanStockServiceImpl implements IScanStockService {
 
     private static Logger logger = LoggerFactory.getLogger(ScanStockServiceImpl.class);
 
-    private IAlphaAvantageService stockService;
+    private IBoursoramaService stockService;
 
     private String codes;
 
@@ -39,8 +40,8 @@ public class ScanStockServiceImpl implements IScanStockService {
     private IStockMapper stockMapper;
 
     @Inject
-    public ScanStockServiceImpl(@Named("stocks.codes") String codes, @Named("stocks.codesCrypto") String codesCrypto, List<IRule> rules, IAlphaAvantageService yahooService, IStockMapper stockMapper) {
-        this.stockService = yahooService;
+    public ScanStockServiceImpl(@Named("stocks.codes") String codes, @Named("stocks.codesCrypto") String codesCrypto, List<IRule> rules, IBoursoramaService apiService, IStockMapper stockMapper) {
+        this.stockService = apiService;
         this.codes = codes;
         this.codesCrypto = codesCrypto;
         this.rules = rules;
@@ -62,16 +63,16 @@ public class ScanStockServiceImpl implements IScanStockService {
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }
-            Optional<AlphaAvantageWrapper> historic = stockService.getHistoric(code);
+            Optional<List<Stock>> historic = stockService.getHistoric(code);
             historic.ifPresent(response -> {
-                List<Stock> stocks = stockMapper.mappeAlphaToStock(response);
-                if (stocks.size() < 2)
+                //List<Stock> stocks = stockMapper.mappeAlphaToStock(response);
+                if (response.size() < 2)
                     return;
-                Stock lastQuote = stocks.get(0);
+                Stock lastQuote = response.get(0);
                 CompleteStock completeStock = new CompleteStock();
                 completeStock.setCode(code);
-                BigDecimal percent = CalculUtils.getPercentageBetweenTwoValues(lastQuote.getClose(), stocks.get(1).getClose());
-                if (stocks.get(1).getClose().floatValue() > lastQuote.getClose().floatValue())
+                BigDecimal percent = CalculUtils.getPercentageBetweenTwoValues(lastQuote.getClose(), response.get(1).getClose());
+                if (response.get(1).getClose().floatValue() > lastQuote.getClose().floatValue())
                     percent = percent.multiply(new BigDecimal(-1));
                 completeStock.setLastVariation(percent);
                 completeStock.setName("");
@@ -82,7 +83,7 @@ public class ScanStockServiceImpl implements IScanStockService {
                 completeStock.setOpen(lastQuote.getOpen());
                 completeStock.setVolume(lastQuote.getVolume());
                 rules.forEach(rule -> {
-                    Optional<RuleStock> eligible = rule.isEligible(stocks, completeStock);
+                    Optional<RuleStock> eligible = rule.isEligible(response, completeStock);
                     eligible.ifPresent(stock -> {
                         logger.debug("{} is eligible to {}", stock.getCode(), rule.getName());
                         Optional<RuleResult> matchingRule = ruleResults.stream().filter(r -> r.getName().equals(rule.getName())).findFirst();
@@ -104,7 +105,7 @@ public class ScanStockServiceImpl implements IScanStockService {
             } catch (InterruptedException e) {
                 logger.error(e.getMessage());
             }
-            Optional<AlphaAvantageCryptoWrapper> historic = stockService.getCryptoHistoric(code);
+/*            Optional<AlphaAvantageCryptoWrapper> historic = stockService.getCryptoHistoric(code);
             historic.ifPresent(response -> {
                 List<Stock> stocks = stockMapper.mappeAlphaToStock(response);
                 if (stocks.size() < 2)
@@ -132,9 +133,9 @@ public class ScanStockServiceImpl implements IScanStockService {
                         ruleResult.addStock(stock);
                     });
                 });
-            });
+            });*//*
             if (!historic.isPresent())
-                logger.warn("Failed to get historic for {}", code);
+                logger.warn("Failed to get historic for {}", code);*/
         });
     }
 

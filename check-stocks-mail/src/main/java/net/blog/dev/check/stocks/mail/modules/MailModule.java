@@ -15,7 +15,9 @@ import net.blog.dev.check.stocks.mail.services.api.IScanStockService;
 import net.blog.dev.check.stocks.mappers.StockMapperImpl;
 import net.blog.dev.check.stocks.mappers.api.IStockMapper;
 import net.blog.dev.services.AlphaAvantageServiceImpl;
+import net.blog.dev.services.BoursoramaServiceImpl;
 import net.blog.dev.services.api.IAlphaAvantageService;
+import net.blog.dev.services.api.IBoursoramaService;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -40,8 +42,8 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IAlphaAvantageService provideAlphaAvantageService() {
-        return new AlphaAvantageServiceImpl(System.getenv("ALPHAAVANTAGE_KEY"), System.getenv("ALPHAAVANTAGE_KEY2"));
+    public IBoursoramaService provideApiService() {
+        return new BoursoramaServiceImpl();
     }
 
     @Provides
@@ -52,8 +54,8 @@ public class MailModule {
 
     @Provides
     @Singleton
-    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, @Named("stocks.codesCrypto") String codesCrypto, List<IRule> rules, IAlphaAvantageService alphaAvantageService,  IStockMapper stockMapper) {
-        return new ScanStockServiceImpl(codes, codesCrypto, rules, alphaAvantageService, stockMapper);
+    public IScanStockService provideScanStockService(@Named("stocks.codes") String codes, @Named("stocks.codesCrypto") String codesCrypto, List<IRule> rules, IBoursoramaService apiService, IStockMapper stockMapper) {
+        return new ScanStockServiceImpl(codes, codesCrypto, rules, apiService, stockMapper);
     }
 
     @Provides
