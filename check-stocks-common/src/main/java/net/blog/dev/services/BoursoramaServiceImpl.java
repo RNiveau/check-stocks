@@ -41,6 +41,8 @@ public class BoursoramaServiceImpl implements IBoursoramaService {
 
         Response response = target.request().header("Cookie", "uuid230=f1de7f13-c9b6-46e6-8494-1df6576654b0;").get();
         if (response.getStatus() != 200) {
+            logger.debug("" + response.getStatus());
+            logger.debug(response.readEntity(String.class));
             return Optional.empty();
         }
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
